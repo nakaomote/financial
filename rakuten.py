@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
-Seven 11's CSV file
+Rakuten's CSV files
 """
 
 import codecs
