@@ -14,6 +14,7 @@ if len(sys.argv) != 3:
     print("%s <meisai> <meisai>" % sys.argv[0])
     sys.exit(1)
 
+MISSINGDEBIT = 0
 FILES = dict()
 for file in sys.argv[1:3]:
     with codecs.open(file, "r", 'shift_jis') as fd:
@@ -25,6 +26,9 @@ for file in sys.argv[1:3]:
         else:
             print("Unknown file: %s" % file)
             sys.exit(1)
+
+class Skip:
+    pass
 
 def returnValue(value):
     return value
@@ -84,9 +88,8 @@ def getDebit(value: str, line: list):
     if value.startswith("VISAデビット"):
         debitKey = value.split(" ")[1]
         if debitKey not in debitEntries:
-            print(line)
-            print("Debit entry not found for: %s" % debitKey)
-            sys.exit(1)
+            print("Debit entry not found for: %s" % debitKey, file=sys.stderr)
+            return returnValue, Skip
         if debitEntries[debitKey][1] != int(line[1]):
             print("Debit amount doesn't match account amount: %s" % debitKey)
             sys.exit(1)
@@ -112,6 +115,7 @@ for line in csv.reader(codecs.open(FILES["kouzaFile"], "r", "shift_jis")):
         newValue = action(value)
         if newValue is not None:
             newLine.append(newValue)
+
     if len(newLine) != 4:
         print("Line without 4 entries!")
         print(newLine)
@@ -120,6 +124,10 @@ for line in csv.reader(codecs.open(FILES["kouzaFile"], "r", "shift_jis")):
     amount  = newLine[1]
     balance = newLine[2]
     name    = newLine[3]
+
+    if Skip in newLine:
+        MISSINGDEBIT += int(amount)
+        continue
 
     m = hashlib.md5()
     m.update(
@@ -137,3 +145,5 @@ rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
 for row, entries in rows.items():
     for index, values in enumerate(entries):
         rowWriter.writerow([ row + "_" + str(index) ] + values)
+
+print("Missing debit amount: %d" % MISSINGDEBIT, file=sys.stderr)
