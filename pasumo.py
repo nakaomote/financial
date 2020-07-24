@@ -30,7 +30,10 @@ class Transactions:
                 self.line = line
                 self.__amount = None
                 if self.getAmount() == 0:
-                    self.__amount = self.getBalance() - lastTransaction.getBalance()
+                    if lastTransaction is None:
+                        self.__amount = self.getBalance()
+                    else:
+                        self.__amount = self.getBalance() - lastTransaction.getBalance()
 
             def getRow(self) -> list:
                 return [ self.getSerialNumber(), self.getDate(), self.getName(), self.getAmount(), self.getBalance() ]
