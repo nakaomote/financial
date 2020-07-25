@@ -79,6 +79,13 @@ class Transactions:
             def getName(self) -> int:
                 return "%s: %s" % (self.line[6], self.line[8])
 
+        class Trafficbureau(TransactionsDetails):
+            def __init__(self, line: list, lastTransaction):
+                super().__init__(line, lastTransaction)
+
+            def getName(self) -> int:
+                return "%s: %s" % (self.line[6], self.line[8])
+
         class Skip(TransactionsDetails):
             def __init__(self, line: list, lastTransaction):
                 super().__init__(line, lastTransaction)
@@ -125,6 +132,14 @@ class Transactions:
             return True
 
         @staticmethod
+        def trafficbureau(line: list) -> bool:
+            if line[6] != "共通":
+                return False
+            if not line[8] == "東京都交通局":
+                return False
+            return True
+
+        @staticmethod
         def skip(line: list) -> bool:
             if line[2] != "0":
                 return False
@@ -159,6 +174,7 @@ class Transactions:
             nodetail.__func__: Nodetail,
             memo.__func__: Memo,
             bus.__func__: Bus,
+            trafficbureau.__func__: Trafficbureau,
             transport.__func__: Transport
         }
 
