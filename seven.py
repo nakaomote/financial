@@ -35,6 +35,8 @@ Filter out noise
 def bouncer(row: list, handler) -> None:
     if mode is None:
         return None
+    if row[0].endswith("]のご利用明細内訳（差額・お振替未済分）はございません"):
+        return None
     if rowSizes[handler] != len(row):
         raise Exception("Row items have an incorrect count!")
     if row[0] == "ご利用者":
