@@ -15,6 +15,7 @@ if len(sys.argv) != 4:
     sys.exit(1)
 
 FILES = dict()
+runningBalance = None
 for file in sys.argv[2:4]:
     with codecs.open(file, "r", 'shift_jis') as fd:
         line = fd.readline().rstrip("\n").rstrip("\r")
@@ -102,11 +103,14 @@ def getDebit(value: str, line: list):
         if len(line[8]) != 0 and len(line[9]) != 0:
             print("Both amounts cannot have values!")
             sys.exit(1)
+        debitHeld = 0
+        if debitKey in debitHolds:
+            debitHeld = debitHolds[debitKey]
         if len(line[8]) != 0:
-            if debitEntries[debitKey][1] == (0 - debitHolds[debitKey] - int(line[8])):
+            if debitEntries[debitKey][1] == (0 - debitHeld - int(line[8])):
                 return returnValue, debitEntries[debitKey][0]
         if len(line[9]) != 0:
-            if debitEntries[debitKey][1] == (0 - debitHolds[debitKey] + int(line[9])):
+            if debitEntries[debitKey][1] == (0 - debitHeld + int(line[9])):
                 return returnValue, debitEntries[debitKey][0]
         print("Debit amounts did not add up!")
         sys.exit(1)
@@ -133,7 +137,8 @@ def debitHold(value):
 def getAmount(value: str, line: list):
     if line[7].startswith("Visaデビット売上確定("):
         debitKey = getDebitKey(line[7])
-        del debitHolds[debitKey]
+        if debitKey in debitHolds:
+            del debitHolds[debitKey]
         return returnValue, debitEntries[debitKey][1]
 
     if len(value) != 0 and len(line[9]) != 0:
@@ -187,7 +192,6 @@ KOUZA_HANDLER = {
 }
 
 rows = dict()
-runningBalance  = None
 startingBalance = int(sys.argv[1])
 for line in csv.reader(codecs.open(FILES["kouzaFile"], "r", "shift_jis")):
     if line[0] == "操作日(年)":
