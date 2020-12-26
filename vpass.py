@@ -13,6 +13,8 @@ if len(sys.argv) != 2:
     sys.exit(1)
 
 class Transactions():
+    AMOUNT = 5
+
     def __init__(self):
         self.__transactions = list()
         self.balance = None
@@ -23,10 +25,10 @@ class Transactions():
             return
         length = len(line) - 1
         for index,value in enumerate(line):
-            if index != 5 and len(value) > 0:
+            if index != AMOUNT and len(value) > 0:
                 break
             if index == length:
-                self.balance = int(line[5])
+                self.balance = int(line[AMOUNT])
                 return
         self.__transactions.append(Transaction(line, self))
 
@@ -56,7 +58,7 @@ class Transaction():
     def __init__(self, line: list, transactions: Transactions):
         self.__setDate(line[0])
         self.__setName(line[1])
-        self.__setAmount(line[5])
+        self.__setAmount(line[Transactions.AMOUNT])
 
     def __setDate(self, date: str):
         if len(date) > 0:
