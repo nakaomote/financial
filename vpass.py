@@ -8,20 +8,62 @@ import csv
 import sys
 import codecs
 
-if len(sys.argv) != 3:
-    print("%s <meisai> <balance>" % sys.argv[0])
+if len(sys.argv) != 2:
+    print("%s <meisai>" % sys.argv[0])
     sys.exit(1)
 
-class Transaction():
-    def __init__(self, line: list):
-        self.line = line # XXX for debugging
+class Transactions():
+    def __init__(self):
+        self.__transactions = list()
+        self.balance = None
+        self.__lastDate = None
 
+    def addTransaction(self, line: list):
+        if len(line) == 3:
+            return
+        length = len(line) - 1
+        for index,value in enumerate(line):
+            if index != 5 and len(value) > 0:
+                break
+            if index == length:
+                self.balance = int(line[5])
+                return
+        self.__transactions.append(Transaction(line, self))
+
+    def checkBalance(self):
+        for transaction in self.__transactions:
+            self.balance += transaction.getAmount()
+        if self.balance != 0:
+            print("Balance does not match: %d" % self.balance)
+            sys.exit(1)
+
+    def setLastDate(self, date: str):
+        self.__lastDate = date
+
+    def getLastDate(self) -> str:
+        return self.__lastDate
+
+    def print(self):
+        rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
+        for transaction in self.__transactions:
+            rowWriter.writerow([
+                transaction.getDate(),
+                transaction.getName(),
+                transaction.getAmount(),
+            ])
+
+class Transaction():
+    def __init__(self, line: list, transactions: Transactions):
         self.__setDate(line[0])
         self.__setName(line[1])
-        self.__setAmount(line[6])
+        self.__setAmount(line[5])
 
     def __setDate(self, date: str):
-        self.__date = date
+        if len(date) > 0:
+            self.__date = date
+            transactions.setLastDate(date)
+            return
+        self.__date = transactions.getLastDate()
 
     def __setName(self, name: str):
         self.__name = name
@@ -38,32 +80,10 @@ class Transaction():
     def getAmount(self) -> int:
         return self.__amount
 
-class Transactions():
-    def __init__(self):
-        self.__transactions = list()
-
-    def addTransaction(self, transaction: Transaction):
-        self.__transactions.append(transaction)
-
-    def checkBalance(self, balance: int):
-        for transaction in self.__transactions:
-            balance += transaction.getAmount()
-        if balance != 0:
-            print("Balance does not match")
-            sys.exit(1)
-
-    def print(self):
-        rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
-        for transaction in self.__transactions:
-            rowWriter.writerow([
-                transaction.getDate(),
-                transaction.getName(),
-                transaction.getAmount(),
-            ])
 
 transactions = Transactions()
 for line in csv.reader(codecs.open(sys.argv[1], "r", "shift_jis")):
-    transactions.addTransaction(Transaction(line))
+    transactions.addTransaction(line)
 
-transactions.checkBalance(int(sys.argv[2]))
+transactions.checkBalance()
 transactions.print()
