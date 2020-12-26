@@ -25,10 +25,10 @@ class Transactions():
             return
         length = len(line) - 1
         for index,value in enumerate(line):
-            if index != AMOUNT and len(value) > 0:
+            if index != Transactions.AMOUNT and len(value) > 0:
                 break
             if index == length:
-                self.balance = int(line[AMOUNT])
+                self.balance = int(line[Transactions.AMOUNT])
                 return
         self.__transactions.append(Transaction(line, self))
 
