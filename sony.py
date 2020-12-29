@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
-Reading ANA Visa Credit Card
+Sony Bank
 """
 
 import csv
