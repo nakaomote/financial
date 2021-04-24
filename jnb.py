@@ -1,238 +1,223 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
-Japan Net Bank CSV files
+PayPay Bank
 """
 
-import codecs
 import csv
+import codecs
 import sys
 import datetime
 import hashlib
 
-if len(sys.argv) != 4:
-    print("%s <meisai> <meisai>" % sys.argv[0])
-    sys.exit(1)
 
-FILES = dict()
-runningBalance = None
-for file in sys.argv[2:4]:
-    with codecs.open(file, "r", 'shift_jis') as fd:
-        line = fd.readline().rstrip("\n").rstrip("\r")
-        if line == '"操作日(年)","操作日(月)","操作日(日)","操作時刻(時)","操作時刻(分)","操作時刻(秒)","取引順番号","摘要","お支払金額","お預り金額","残高","メモ"':
-            FILES["kouzaFile"] = file
-        elif line == '"カード番号","利用年","利用月","利用日","利用店名","利用金額（円）","未払金（円）","取引状況","外貨コード","外貨金額","外貨レート","取引明細番号","支払方法"':
-            FILES["debitFile"] = file
-        else:
-            print("Unknown file: %s" % file)
+class Transaction():
+    """
+    Transaction
+    """
+    def __init__(self, transactions: 'Transactions', line: list):
+        line.reverse()
+        self.__line = line
+        self.__amount = 0
+        self.__transactions = transactions
+        getattr(self, transactions.mode())(line)
+
+    def setHash(self):
+        m = hashlib.md5()
+        m.update(
+            self.getDate().encode("utf-8") +
+            self.getDescription().encode("utf-8") +
+            str(self.getBalance()).encode("utf-8") +
+            str(self.getAmount()).encode("utf-8")
+        )
+        self.__hash = m.hexdigest()
+
+    def getHash(self) -> str:
+        return self.__hash
+
+    def getDate(self) -> str:
+        return self.__date
+
+    def __setDate(self):
+        self.__date = \
+            datetime.datetime.strptime("%d%02d%02d" % (
+                int(self.__line.pop()), int(self.__line.pop()), int(self.__line.pop())
+            ), '%Y%m%d').strftime("%Y/%m/%d")
+
+    def __setDescription(self):
+        self.__description = self.__line.pop()
+
+    def __setReplaceDescription(self):
+        self.__description = self.__line.pop().replace("\u3000", " ")
+
+    def __setDebitAmount(self):
+        self.__debitAmount = self.__line.pop()
+
+    def __setAmount(self):
+        self.__amount -= int(self.__line[-1]) if len(self.__line[-2]) == 0 else (0 - int(self.__line[-2]))
+        self.__popCount(2)
+
+    def getAmount(self):
+        return self.__amount
+
+    def __setBalance(self):
+        self.__balance = int(self.__line.pop())
+        self.__transactions.setLastBalance(self)
+
+    def setBalance(self, balance):
+        self.__balance = balance
+
+    def getBalance(self) -> int:
+        return self.__balance
+
+    def getDescription(self) -> int:
+        return self.__description
+
+    def __popAZeroOrElse(self):
+        if self.__line.pop() != "0":
+            print("Ok we should be 0... but we're not...")
             sys.exit(1)
 
-def returnValue(value):
-    return value
-
-def dateFix(date: str, line: list):
-    return returnValue, datetime.datetime.strptime(
-                "%d%02d%02d" % (int(line[0]), int(line[1]), int(line[2])), '%Y%m%d'
-            ).strftime("%Y/%m/%d")
-
-def addMinus(amount: str, line: list):
-    return returnValue, int("-" + amount)
-
-def getValue(value: str, line: list):
-    return returnValue, value
-
-def getInt(value: str, line: list):
-    return returnValue, int(value)
-
-def alwaysZero(value: str, line: list):
-    if value != "0":
-        print("Points not zero which we never encountered before...")
-        sys.exit(1)
-    return returnValue, None
-
-def alwaysEmpty(value: str, line: list):
-    if len(value) != 0:
-        print("Field is not empty...")
-        sys.exit(1)
-    return returnValue, None
-
-def isDebit(value: str, line: list):
-    if value != "Visaデビット":
-        print("Isn't set to Visaデビット")
-        sys.exit(1)
-    return returnValue, None
-
-DEBIT_HANDLER = {
-  0: False,
-  1: False,
-  2: False,
-  3: False,
-  4: getValue,
-  5: addMinus,
-  6: alwaysZero,
-  7: False,
-  8: False,
-  9: False,
-  10: False,
-  11: False,
-  12: isDebit,
-}
-
-csv.reader(codecs.open(FILES["debitFile"], "r", "shift_jis"))
-debitEntries = dict()
-debitHolds   = dict()
-for line in csv.reader(codecs.open(FILES["debitFile"], "r", "shift_jis")):
-    if line[0] == "カード番号":
-        continue
-    newLine = list()
-    for index, item in enumerate(line):
-        if DEBIT_HANDLER[index] is False:
-            continue
-        action, value = DEBIT_HANDLER[index](item, line)
-        newValue = action(value)
-        if newValue is not None:
-            newLine.append(newValue)
-    debitEntries[line[11]] = newLine
-
-def getDebitKey(value: str) -> str:
-    return value.split("(")[1].split(")")[0]
-
-def getDebit(value: str, line: list):
-    if value.startswith("Visaデビット売上確定("):
-        debitKey = getDebitKey(value)
-        if len(line[8]) != 0 and len(line[9]) != 0:
-            print("Both amounts cannot have values!")
+    def __popValueInTitleOrElse(self, *values):
+        if not self.__line.pop() in values:
+            print("We should have values: %s" % ",".join(values))
             sys.exit(1)
-        debitHeld = 0
-        if debitKey in debitHolds:
-            debitHeld = debitHolds[debitKey]
-        if len(line[8]) != 0:
-            if debitEntries[debitKey][1] == (0 - debitHeld - int(line[8])):
-                return returnValue, debitEntries[debitKey][0]
-        if len(line[9]) != 0:
-            if debitEntries[debitKey][1] == (0 - debitHeld + int(line[9])):
-                return returnValue, debitEntries[debitKey][0]
-        print("Debit amounts did not add up!")
-        sys.exit(1)
-    if value.startswith("Visaデビット売上予約("):
-        debitKey = getDebitKey(value)
-        if debitKey not in debitEntries:
-            print(line)
-            print("Debit entry not found for: %s" % debitKey)
+
+    def __popCount(self, count: int):
+        for i in range(0, count):
+            self.__line.pop()
+
+    def __setDebitID(self):
+        self.__debitID = self.__line.pop()
+        self.__transactions.setDebit(self)
+
+    def getDebitID(self):
+        return self.__debitID
+
+    def __emptyOrElse(self):
+        if len(self.__line.pop()) != 0:
+            print("Non-empty value when it should be empty...")
             sys.exit(1)
-        if len(line[8]) == 0:
-            print("Visaデビット売上予約 should never be empty!")
+
+    def __zeroOrElse(self):
+        if len(self.__line) != 0:
+            print("ERROR...")
+            print(self.__line)
+            print("Remaining elements...")
             sys.exit(1)
-        if debitEntries[debitKey][1] != int("-" + line[8]):
-            debitHolds[debitKey] = int(line[8])
-            return debitHold, None
-        return returnValue, debitEntries[debitKey][0]
-    return returnValue, value
 
-def debitHold(value):
-    print("This method should never run!")
-    sys.exit(1)
-    pass
+    def _debit(self, line: list):
+        """
+        Debit type transaction
+        """
+        self.__line.pop()
+        self.__setDate()
+        self.__setDescription()
+        self.__setDebitAmount()
+        self.__popAZeroOrElse()
+        self.__popValueInTitleOrElse("確定", "利用")
+        self.__popCount(3)
+        self.__setDebitID()
+        self.__line.pop()
+        self.__zeroOrElse()
 
-def getAmount(value: str, line: list):
-    if line[7].startswith("Visaデビット売上確定("):
-        debitKey = getDebitKey(line[7])
-        if debitKey in debitHolds:
-            del debitHolds[debitKey]
-        return returnValue, debitEntries[debitKey][1]
+    def _bank(self, line: list):
+        """
+        Bank type transaction without debit entry
+        """
+        self.__setDate()
+        self.__popCount(4)
+        self.__setReplaceDescription()
+        self.__setAmount()
+        self.__setBalance()
+        self.__emptyOrElse()
+        self.__zeroOrElse()
 
-    if len(value) != 0 and len(line[9]) != 0:
-        print("Both amounts cannot have values!")
-        sys.exit(1)
+    def bankOverDebit(self, line: list):
+        """
+        Bank type transaction
+        """
+        line.reverse()
+        self.__line = line
+        self.__setDate()
+        self.__popCount(5)
+        self.__setAmount()
+        self.__setBalance()
+        self.__emptyOrElse()
+        self.__zeroOrElse()
 
-    if len(value) != 0:
-        return returnValue, int("-" + value)
+class Transactions():
+    """
+    Global transactions
+    """
+    def __init__(self):
+        if len(sys.argv) == 1:
+            print("%s <meisai> <meisai>" % sys.argv[0])
+            sys.exit(1)
+        self.__transactions = list()
+        self.__balance = None
+        self.__files = dict()
+        self.__debitIDs = dict()
+        for file in sys.argv[1:3]:
+            with codecs.open(file, encoding="shift_jis") as fd:
+                line = fd.readline().rstrip("\n").rstrip("\r")
+                if line == '"操作日(年)","操作日(月)","操作日(日)","操作時刻(時)","操作時刻(分)","操作時刻(秒)","取引順番号","摘要","お支払金額","お預り金額","残高","メモ"':
+                    self.__files["_bank"] = file
+                elif line == '"カード番号","利用年","利用月","利用日","利用店名","利用金額（円）","未払金（円）","取引状況","外貨コード","外貨金額","外貨レート","取引明細番号","支払方法"':
+                    self.__files["_debit"] = file
+                else:
+                    print("Unknown file: %s" % file)
+                    sys.exit(1)
+        self.__mode = "_debit"
+        for line in csv.reader(codecs.open(self.__files[self.__mode], encoding="shift_jis")):
+            if line[0] == "カード番号":
+                continue
+            self.__transactions.append(Transaction(self, line))
+        self.__mode = "_bank"
+        for self.__line in csv.reader(codecs.open(self.__files[self.__mode], encoding="shift_jis")):
+            if self.__line[0] == "操作日(年)":
+                continue
+            if self.__bankDescription().startswith("Vデビット"):
+                self.__getDebit().bankOverDebit(self.__line)
+                continue
+            self.__transactions.append(Transaction(self, self.__line))
 
-    if len(line[9]) != 0:
-        return returnValue, int(line[9])
+        transaction: Transaction
+        transaction = self.__transactions[0]
+        runningBalance = transaction.getBalance()
+        transaction.setHash()
+        for transaction in self.__transactions[1:]:
+            runningBalance += transaction.getAmount()
+            transaction.setBalance(runningBalance)
+            transaction.setHash()
+        if runningBalance != self.__lastBalance:
+            print("Balances do not match!")
+            sys.exit(1)
 
-def checkBalance(runningBalance: int, amount: int, balance: int) -> int:
-    if runningBalance is None:
-        return balance
-    if balance != runningBalance + amount:
-        print("Something does not add up!")
-        sys.exit(1)
-    runningBalance = runningBalance + amount
+        rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
+        rowWriter.writerow(("Txn ID", "Date", "Name", "Amount", "Balance"))
+        for transaction in self.__transactions:
+            rowWriter.writerow([
+                transaction.getHash(),
+                transaction.getDate(),
+                transaction.getDescription(),
+                transaction.getAmount(),
+                transaction.getBalance(),
+            ])
 
-def handleLine(line: list):
-    newLine = list()
-    for index, item in enumerate(line):
-        if KOUZA_HANDLER[index] is False:
-            continue
-        action, value = KOUZA_HANDLER[index](item, line)
-        if action is debitHold:
-            return None
-        newValue = action(value)
-        if newValue is not None:
-            newLine.append(newValue)
-    if len(newLine) != 5:
-        print("Line without 5 entries!")
-        print(newLine)
-        sys.exit(1)
-    return newLine
+    def mode(self) -> str:
+        return self.__mode
 
-KOUZA_HANDLER = {
-  0: dateFix,
-  1: False,
-  2: False,
-  3: False,
-  4: False,
-  5: False,
-  6: getValue,
-  7: getDebit,
-  8: getAmount,
-  9: False,
-  10: getInt, # Balance, easier to see.
-  11: alwaysEmpty,
-}
+    def __bankDescription(self) -> str:
+        return self.__line[-5]
 
-rows = dict()
-startingBalance = int(sys.argv[1])
-for line in csv.reader(codecs.open(FILES["kouzaFile"], "r", "shift_jis")):
-    if line[0] == "操作日(年)":
-        continue
-    newLine = handleLine(line)
-    if newLine is None:
-        continue
+    def __getDebit(self) -> Transaction:
+        return self.__debitIDs[self.__bankDescription().split("\u3000")[-1]]
 
-    day      = newLine[0]
-    sequence = newLine[1]
-    name     = newLine[2]
-    amount   = newLine[3]
-    balance  = newLine[4]
+    def setDebit(self, transaction: Transaction):
+        self.__debitIDs[transaction.getDebitID()] = transaction
 
-    runningBalance = checkBalance(runningBalance, amount, balance)
+    def setLastBalance(self, transaction: Transaction):
+        self.__lastBalance = transaction.getBalance()
 
-    if startingBalance is not None:
-        if balance != startingBalance:
-            continue
-        elif balance == startingBalance:
-            startingBalance = None
-            continue
-
-    m = hashlib.md5()
-    m.update(
-        day.encode("utf-8") +
-        sequence.encode("utf-8") +
-        name.encode("utf-8") +
-        str(balance).encode("utf-8") +
-        str(amount).encode("utf-8")
-    )
-    hash = m.hexdigest()
-    if not hash in rows:
-        rows[hash] = list()
-    rows[hash].append([ day, sequence, name, int(amount), int(balance) ])
-
-if len(debitHolds) != 0:
-    print("debitHolds is not empty...")
-    sys.exit(1)
-
-rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
-for row, entries in rows.items():
-    for index, values in enumerate(entries):
-        rowWriter.writerow([ row + "_" + str(index) ] + values)
+Transactions()
