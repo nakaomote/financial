@@ -26,7 +26,6 @@ class BaseTransaction():
         m = hashlib.md5()
         m.update(
             self.getDate().encode("utf-8") +
-            self.getDescription().encode("utf-8") +
             str(self.getAmount()).encode("utf-8") +
             self.getTxNumber().encode("utf-8")
         )

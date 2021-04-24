@@ -272,10 +272,13 @@ class Transactions:
                 self.__last_balance = transaction.getBalance()
                 continue
             if transaction.getAmount() + self.__last_balance != transaction.getBalance():
+                sys.stderr.write(str(transaction.getRow()) + "\n")
+                sys.stderr.write("Amount:" + str(transaction.getAmount()) + "\n")
                 raise Exception("Mismatching amount calculation!")
             self.__last_balance = transaction.getBalance()
 
         rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
+        rowWriter.writerow(("Txn ID", "Date", "Name", "Amount", "Balance"))
         for transaction in self.getTransactions():
             rowWriter.writerow(transaction.getRow())
 
