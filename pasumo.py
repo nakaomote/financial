@@ -12,6 +12,18 @@ if len(sys.argv) != 2:
     sys.exit(1)
 
 class Transactions:
+
+    SERIAL_NUMBER             = 0
+    DATE                      = 1
+    AMOUNT                    = 3
+    CHARGE_AMOUNT             = 4
+    BALANCE                   = 5
+    SOURCE_STATION_NAME       = 7
+    SOURCE_STATION_LINE       = 8
+    SOURCE_TRAIN_COMPANY      = 9
+    MEMO                      = 13
+    MAX_SIZE                  = 14
+
     class HeaderTracker:
         def __init__(self, line: list):
             self.headers = dict()
@@ -26,6 +38,7 @@ class Transactions:
     class Transaction:
 
         class TransactionsDetails:
+
             def __init__(self, line: list, lastTransaction):
                 self.line = line
                 self.__amount = None
@@ -39,18 +52,18 @@ class Transactions:
                 return [ self.getSerialNumber(), self.getDate(), self.getName(), self.getAmount(), self.getBalance() ]
 
             def getSerialNumber(self) -> int:
-                return int(self.line[0])
+                return int(self.line[Transactions.SERIAL_NUMBER])
 
             def getDate(self) -> str:
-                return self.line[1]
+                return self.line[Transactions.DATE]
 
             def getAmount(self) -> int:
                 if self.__amount is not None:
                     return self.__amount
-                return -int(self.line[2])
+                return -int(self.line[Transactions.AMOUNT])
 
             def getBalance(self) -> int:
-                return int(self.line[4])
+                return int(self.line[Transactions.BALANCE])
 
             def getName(self) -> None:
                 raise Exception("%s getName should never run!" % self)
@@ -59,15 +72,15 @@ class Transactions:
             def __init__(self, line: list, lastTransaction):
                 super().__init__(line, lastTransaction)
 
-            def getName(self) -> int:
-                return ("%s (%s/%s) -> %s (%s/%s)" % tuple(self.line[6:12]))
+            def getName(self) -> str:
+                return ("%s (%s/%s) -> %s (%s/%s)" % tuple(self.line[Transactions.SOURCE_STATION_NAME:Transactions.MEMO]))
 
         class Charge(TransactionsDetails):
             def __init__(self, line: list, lastTransaction):
                 super().__init__(line, lastTransaction)
 
             def getAmount(self) -> int:
-                return int(self.line[3])
+                return int(self.line[Transactions.CHARGE_AMOUNT])
 
             def getName(self) -> int:
                 return "チャージ"
@@ -76,15 +89,15 @@ class Transactions:
             def __init__(self, line: list, lastTransaction):
                 super().__init__(line, lastTransaction)
 
-            def getName(self) -> int:
-                return "%s: %s" % (self.line[6], self.line[8])
+            def getName(self) -> str:
+                return "%s: %s" % (self.line[Transactions.SOURCE_STATION_NAME], self.line[Transactions.SOURCE_TRAIN_COMPANY])
 
         class Trafficbureau(TransactionsDetails):
             def __init__(self, line: list, lastTransaction):
                 super().__init__(line, lastTransaction)
 
-            def getName(self) -> int:
-                return "%s: %s" % (self.line[6], self.line[8])
+            def getName(self) -> str:
+                return "%s: %s" % (self.line[Transactions.SOURCE_STATION_NAME], self.line[Transactions.SOURCE_TRAIN_COMPANY])
 
         class Skip(TransactionsDetails):
             def __init__(self, line: list, lastTransaction):
@@ -105,65 +118,65 @@ class Transactions:
                 super().__init__(line, lastTransaction)
 
             def getName(self) -> int:
-                return self.line[12]
+                return self.line[Transactions.MEMO]
 
         @staticmethod
         def transport(line: list) -> bool:
-            for i in range(6,12):
+            for i in range(Transactions.SOURCE_STATION_NAME,Transactions.MEMO):
                 if len(line[i]) == 0:
                     return False
             return True
 
         @staticmethod
         def charge(line: list) -> bool:
-            for i in range(6,13):
+            for i in range(Transactions.SOURCE_STATION_NAME,Transactions.MAX_SIZE):
                 if len(line[i]) != 0:
                     return False
-            if len(line[3]) == 0:
+            if len(line[Transactions.CHARGE_AMOUNT]) == 0:
                 return False
             return True
 
         @staticmethod
         def bus(line: list) -> bool:
-            if line[6] != "共通":
+            if line[Transactions.SOURCE_STATION_NAME] != "共通":
                 return False
-            if not line[8][-2:] == "バス":
+            if not line[Transactions.SOURCE_TRAIN_COMPANY][-2:] == "バス":
                 return False
             return True
 
         @staticmethod
         def trafficbureau(line: list) -> bool:
-            if line[6] != "共通":
+            if line[Transactions.SOURCE_STATION_NAME] != "共通":
                 return False
-            if not line[8] == "東京都交通局":
+            if not line[Transactions.SOURCE_TRAIN_COMPANY] == "東京都交通局":
                 return False
             return True
 
         @staticmethod
         def skip(line: list) -> bool:
-            if line[2] != "0":
+            if line[Transactions.AMOUNT] != "0":
                 return False
-            for i in range(6,12):
+            for i in range(Transactions.SOURCE_STATION_NAME,Transactions.MEMO):
                 if len(line[i]) != 0:
                     return False
             return True
 
         @staticmethod
         def nodetail(line: list) -> bool:
-            if line[2] == "0":
+            if line[Transactions.AMOUNT] == "0":
                 return False
-            for i in range(6,13):
+            for i in range(Transactions.SOURCE_STATION_NAME,Transactions.MAX_SIZE):
                 if len(line[i]) != 0:
                     return False
             return True
 
         @staticmethod
         def memo(line: list) -> bool:
-            if line[2] == "0":
+            if line[Transactions.AMOUNT] == "0":
                 return False
-            if len(line[12]) <= 0:
+            if len(line[Transactions.MEMO]) <= 0:
                 return False
-            for i in range(6,12):
+            for i in range(Transactions.SOURCE_STATION_LINE,Transactions.MEMO):
                 if len(line[i]) != 0:
                     return False
             return True
@@ -188,23 +201,23 @@ class Transactions:
 
         @staticmethod
         def _check_2(index: int, value: str) -> bool:
-            return type(value) is str and len(value) == 0 or int(value) >= 0
+            return type(value) is str
 
         @staticmethod
         def _check_3(index: int, value: str) -> bool:
-            return type(value) is str
+            return type(value) is str and len(value) == 0 or int(value) >= 0
 
         @staticmethod
         def _check_4(index: int, value: str) -> bool:
-            return type(value) is str and int(value) >= 0
+            return type(value) is str
 
         @staticmethod
         def _check_5(index: int, value: str) -> bool:
-            return type(value) is str and ( int(value) == 0 or int(value) == 1 )
+            return type(value) is str and int(value) >= 0
 
         @staticmethod
         def _check_6(index: int, value: str) -> bool:
-            return type(value) is str
+            return type(value) is str and ( int(value) == 0 or int(value) == 1 )
 
         @staticmethod
         def _check_7(index: int, value: str) -> bool:
@@ -231,8 +244,12 @@ class Transactions:
             return type(value) is str
 
         @staticmethod
+        def _check_13(index: int, value: str) -> bool:
+            return type(value) is str
+
         def __new__(self, line: list, lastTransaction):
-            if len(line) != 13:
+            if len(line) != Transactions.MAX_SIZE:
+                sys.stderr.write(str(line) + "\n")
                 raise Exception("%d: Incorrect size of entry!" % len(line))
 
             for index, value in enumerate(line):
@@ -256,7 +273,7 @@ class Transactions:
     def __init__(self, csvFile: str):
         self.__transactions = list()
         for line in csv.reader(open(csvFile, "r", encoding='utf-8-sig')):
-            if line[0] == "通番":
+            if line[Transactions.SERIAL_NUMBER] == "通番":
                 self.headerTracker = Transactions.HeaderTracker(line)
                 continue
             self.append(line)
