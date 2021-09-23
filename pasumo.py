@@ -21,6 +21,7 @@ class Transactions:
     SOURCE_STATION_NAME       = 7
     SOURCE_STATION_LINE       = 8
     SOURCE_TRAIN_COMPANY      = 9
+    DESTINATION_STATION_NAME  = 10
     MEMO                      = 13
     MAX_SIZE                  = 14
 
@@ -60,7 +61,9 @@ class Transactions:
             def getAmount(self) -> int:
                 if self.__amount is not None:
                     return self.__amount
-                return -int(self.line[Transactions.AMOUNT])
+                if len(self.line[Transactions.AMOUNT]) > 0:
+                    return -int(self.line[Transactions.AMOUNT])
+                return int(self.line[Transactions.CHARGE_AMOUNT])
 
             def getBalance(self) -> int:
                 return int(self.line[Transactions.BALANCE])
@@ -74,6 +77,13 @@ class Transactions:
 
             def getName(self) -> str:
                 return ("%s (%s/%s) -> %s (%s/%s)" % tuple(self.line[Transactions.SOURCE_STATION_NAME:Transactions.MEMO]))
+
+        class TransportCharge(TransactionsDetails):
+            def __init__(self, line: list, lastTransaction):
+                super().__init__(line, lastTransaction)
+
+            def getName(self) -> str:
+                return ("チャージ: %s (%s/%s)" % tuple(self.line[Transactions.SOURCE_STATION_NAME:Transactions.DESTINATION_STATION_NAME]))
 
         class Charge(TransactionsDetails):
             def __init__(self, line: list, lastTransaction):
@@ -137,6 +147,15 @@ class Transactions:
             return True
 
         @staticmethod
+        def stationcharge(line: list) -> bool:
+            for i in range(Transactions.DESTINATION_STATION_NAME,Transactions.MAX_SIZE):
+                if len(line[i]) != 0:
+                    return False
+            if len(line[Transactions.CHARGE_AMOUNT]) == 0:
+                return False
+            return True
+
+        @staticmethod
         def bus(line: list) -> bool:
             if line[Transactions.SOURCE_STATION_NAME] != "共通":
                 return False
@@ -188,7 +207,8 @@ class Transactions:
             memo.__func__: Memo,
             bus.__func__: Bus,
             trafficbureau.__func__: Trafficbureau,
-            transport.__func__: Transport
+            transport.__func__: Transport,
+            stationcharge.__func__: TransportCharge,
         }
 
         @staticmethod
@@ -260,7 +280,7 @@ class Transactions:
                 if transactionTypeFunction(line) is True:
                     return transactionType(line, lastTransaction)
 
-            print(line)
+            sys.stderr.write(str(line) + "\n")
             raise Exception("Unable to identify type of transaction")
 
     def append(self, line: list):
@@ -298,5 +318,7 @@ class Transactions:
         rowWriter.writerow(("Txn ID", "Date", "Name", "Amount", "Balance"))
         for transaction in self.getTransactions():
             rowWriter.writerow(transaction.getRow())
+
+        sys.stderr.write("Balance: %d\n" % self.__last_balance)
 
 Transactions(sys.argv[1])
