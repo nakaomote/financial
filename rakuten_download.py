@@ -57,4 +57,5 @@ post = {
 }
 
 r = session.post("https://fes.rakuten-bank.co.jp/MS/main/fcs/rb/fes/jsp/mainservice/CardManagement/DebitList/DebitList/DebitList.jsp", data=post)
-r = print(r.text)
+with open("rakuten_debit.csv", "w") as rb:
+    rb.write(r.text)

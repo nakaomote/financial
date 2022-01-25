@@ -17,9 +17,9 @@ if len(sys.argv) != 3:
 MISSINGDEBIT = 0
 FILES = dict()
 for file in sys.argv[1:3]:
-    with codecs.open(file, "r", 'shift_jis') as fd:
+    with codecs.open(file, "r") as fd:
         line = fd.readline().rstrip("\n").rstrip("\r")
-        if line == "取引日,入出金(円),残高(円),入出金先内容":
+        if line == "取引日,入出金(円),取引後残高(円),入出金内容":
             FILES["kouzaFile"] = file
         elif line == '"ご利用日","ご利用先","ご利用金額（円）","現地通貨額","通貨略称","換算レート","使用地域","照会番号","承認番号","口座引落分（円）","ポイント利用分"':
             FILES["debitFile"] = file
@@ -37,7 +37,7 @@ def dateFix(date: str, line: list):
     return returnValue, datetime.datetime.strptime(date, '%Y%m%d').strftime("%Y/%m/%d")
 
 def addMinus(amount: str, line: list):
-    return returnValue, int("-" + amount)
+    return returnValue, -int(amount)
 
 def getValue(value: str, line: list):
     return returnValue, value
@@ -68,9 +68,9 @@ HANDLER = {
   10: alwaysZero,
 }
 
-csv.reader(codecs.open(FILES["debitFile"], "r", "shift_jis"))
+csv.reader(codecs.open(FILES["debitFile"], "r"))
 debitEntries = dict()
-for line in csv.reader(codecs.open(FILES["debitFile"], "r", "shift_jis")):
+for line in csv.reader(codecs.open(FILES["debitFile"], "r")):
     if line[0] == "ご利用日":
         continue
     newLine = list()
@@ -104,7 +104,7 @@ HANDLER = {
   3: getDebit,
 }
 rows = dict()
-for line in csv.reader(codecs.open(FILES["kouzaFile"], "r", "shift_jis")):
+for line in csv.reader(codecs.open(FILES["kouzaFile"], "r")):
     if line[0] == "取引日":
         continue
     newLine = list()
