@@ -8,13 +8,14 @@ import csv
 import sys
 import codecs
 
-if len(sys.argv) != 3:
-    print("%s <meisai> <balance>" % sys.argv[0])
+if len(sys.argv) != 2:
+    print("%s <meisai>" % sys.argv[0])
     sys.exit(1)
 
 
 class Transactions():
-    AMOUNT = 6
+    AMOUNT = 2
+    OVERSEAS_AMOUNT = 5
 
     def __init__(self):
         self.__transactions = list()
@@ -24,20 +25,15 @@ class Transactions():
     def addTransaction(self, line: list):
         if len(line) == 3:
             return
-        length = len(line) - 1
         for index, value in enumerate(line):
             if index != Transactions.AMOUNT and len(value) > 0:
                 break
-            # XXX TODO: This code may never be used anymore due to CSV
-            #           file from vpass.
-            if index == length:
-                self.balance = int(line[Transactions.AMOUNT])
+            if len(line[0]) == 0:
+                self.balance = int(line[Transactions.OVERSEAS_AMOUNT])
                 return
         self.__transactions.append(Transaction(line, self))
 
     def checkBalance(self):
-        if self.balance is None:
-            self.balance = int(sys.argv[2].replace(",", ""))
         startingBalance = self.balance
         for transaction in self.__transactions:
             self.balance += transaction.getAmount()
@@ -68,7 +64,7 @@ class Transaction():
     def __init__(self, line: list, transactions: Transactions):
         self.__setDate(line[0])
         self.__setName(line[1])
-        self.__setAmount(line[Transactions.AMOUNT])
+        self.__setAmount(line[Transactions.OVERSEAS_AMOUNT] if len(line[Transactions.AMOUNT]) == 0 else line[Transactions.AMOUNT])
 
     def __setDate(self, date: str):
         if len(date) > 0:
