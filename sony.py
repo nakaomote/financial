@@ -107,7 +107,7 @@ class Transactions():
             ])
 
 transactions = Transactions(sys.argv[2])
-for line in csv.reader(codecs.open(sys.argv[1], "r", "shift_jis")):
+for line in csv.reader(codecs.open(sys.argv[1], "r")):
     if line[0] != "お取り引き日":
         transactions.addTransaction(Transaction(line))
 
