@@ -23,7 +23,7 @@ post = {
 	"__type": "0003",
 	"__gid": "NBP000109G01",
 	"__sid": "",
-	"__uid": "7166197",
+	"__uid": settings["kozano"],
 	"__fid": "NBP000109",
 	"B_ID": "1",
 	"DirectId": "",
@@ -44,13 +44,13 @@ session.post("https://o2o.moneykit.net/TDGate010300/gate/NBW010300/&NBPO2OTMPG01
 post = {
 	"LoginKS": "1",
 	"__type": "0023",
-	"__uid": "0017166197",
+	"__uid": settings["tenno"] + settings["kozano"],
 	"__sid": post["__sid"],
 	"__gid": "NBP010105G01",
 	"__fid": "NBP010116",
 	"B_ID": "001",
-	"TenNo": "001",
-	"KozaNo": "7166197",
+	"TenNo": settings["tenno"],
+	"KozaNo": settings["kozano"],
 	"CsvStartTime": "1900/01/01+00:00:00",
     "CsvEndTime": datetime.now(timezone("Asia/Tokyo")).strftime("%Y/%m/%d+23:59:59")
 }
