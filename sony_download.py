@@ -56,5 +56,5 @@ post = {
 }
 
 r = session.post("https://o2o.moneykit.net/TDGate000036/gate/NBW000036/YenFutsuRireki.csv", post)
-with open("sony.csv", "w") as rb:
+with open("YenFutsuRireki.csv", "w") as rb:
     rb.write(r.text)
