@@ -7,6 +7,7 @@ Reading ANA Visa Credit Card
 import csv
 import sys
 import codecs
+from descriptions import Descriptions
 
 if len(sys.argv) != 3:
     print("%s <meisai> <balance>" % sys.argv[0])
@@ -26,7 +27,7 @@ class Transactions():
         for index, value in enumerate(line):
             if index != Transactions.AMOUNT and len(value) > 0:
                 break
-        self.__transactions.append(Transaction(line, self))
+        self.__transactions.append(Transaction(line))
 
     def checkBalance(self):
         startingBalance = balance = int(sys.argv[2].replace(",",""))
@@ -56,7 +57,7 @@ class Transactions():
 
 
 class Transaction():
-    def __init__(self, line: list, transactions: Transactions):
+    def __init__(self, line: list):
         self.__setDate(line[0])
         self.__setName(line[1])
         self.__setAmount(line[Transactions.AMOUNT])
@@ -69,7 +70,7 @@ class Transaction():
         self.__date = transactions.getLastDate()
 
     def __setName(self, name: str):
-        self.__name = name
+        self.__name = Descriptions().getName(name)
 
     def __setAmount(self, amount: str):
         self.__amount = 0 - int(amount)

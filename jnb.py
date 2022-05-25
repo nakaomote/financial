@@ -9,6 +9,7 @@ import codecs
 import sys
 import datetime
 import hashlib
+from descriptions import Descriptions
 
 
 class Transaction():
@@ -44,7 +45,7 @@ class Transaction():
             ), '%Y%m%d').strftime("%Y/%m/%d")
 
     def __setDescription(self):
-        self.__description = self.__line.pop()
+        self.__description = Descriptions().getName(self.__line.pop())
 
     def __setReplaceDescription(self):
         self.__description = self.__line.pop().replace("\u3000", " ")

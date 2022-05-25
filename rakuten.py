@@ -9,6 +9,7 @@ import csv
 import sys
 import datetime
 import hashlib
+from descriptions import Descriptions
 
 if len(sys.argv) != 3:
     print("%s <meisai> <meisai>" % sys.argv[0])
@@ -139,7 +140,7 @@ for line in csv.reader(codecs.open(FILES["kouzaFile"], "r")):
     hash = m.hexdigest()
     if not hash in rows:
         rows[hash] = list()
-    rows[hash].append([ day, name, int(amount), int(balance) ])
+    rows[hash].append([ day, Descriptions().getName(name), int(amount), int(balance) ])
 
 rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
 for row, entries in rows.items():
