@@ -1,7 +1,11 @@
 {
     "remove_trailing": [
+        "AUDIBLE",
+        "IHERB IHERB.COM",
+        "Spotify",
         "ＡＵＤＩＢＬＥ",
-        "Spotify"
+        "ＩＨＥＲＢ  ＩＨＥＲＢ．ＣＯＭ",
+        "ＮＩＮＴＥＮＤＯ"
     ],
     "cut_from": [
         "（Viberで送金）"
