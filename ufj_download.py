@@ -4,7 +4,6 @@
 CSV download
 """
 
-import requests
 import configparser
 import os
 import time
@@ -37,14 +36,19 @@ options.add_experimental_option("prefs", {
 driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
 
 driver.get("https://entry11.bk.mufg.jp/ibg/dfw/APLIN/loginib/login?_TRANID=AG004_001")
-driver.find_element_by_id("tx-contract-number").send_keys(settings["keiyakuno"])
-driver.find_element_by_id("tx-ib-password").send_keys(settings["pass"])
-driver.find_element_by_class_name("gonext").click()
+
+driver.execute_script("arguments[0].value = '" + settings["keiyakuno"] + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "tx-contract-number"))))
+driver.execute_script("arguments[0].value = '" + settings["pass"] + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "tx-ib-password"))))
+
+WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "gonext")))
+driver.find_element(By.CLASS_NAME, "gonext").click()
+
 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "detail")))
-driver.find_element_by_class_name("detail").click()
+driver.find_element(By.CLASS_NAME, "detail").click()
 driver.implicitly_wait(10)
-driver.find_element_by_css_selector("img[src='https://directg.s.bk.mufg.jp/refresh/imgs/_DIRECT_IMAGE/YEN/btn_meisai_download_off.gif']").click()
+
+driver.find_element(By.CSS_SELECTOR, "img[src='https://directg.s.bk.mufg.jp/refresh/imgs/_DIRECT_IMAGE/YEN/btn_meisai_download_off.gif']").click()
 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "appoint")))
-driver.find_element_by_id("appoint").click()
-driver.find_element_by_css_selector("img[src='https://directg.s.bk.mufg.jp/refresh/imgs/_DIRECT_IMAGE/COMMON/btn_download_off.jpg']").click()
+driver.find_element(By.ID, "appoint").click()
+driver.find_element(By.CSS_SELECTOR, "img[src='https://directg.s.bk.mufg.jp/refresh/imgs/_DIRECT_IMAGE/COMMON/btn_download_off.jpg']").click()
 time.sleep(10)
