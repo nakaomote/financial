@@ -18,7 +18,7 @@ if len(sys.argv) != 3:
 MISSINGDEBIT = 0
 FILES = dict()
 for file in sys.argv[1:3]:
-    with codecs.open(file, "r") as fd:
+    with codecs.open(file, "r", "shift_jis") as fd:
         line = fd.readline().rstrip("\n").rstrip("\r")
         if line == "取引日,入出金(円),取引後残高(円),入出金内容":
             FILES["kouzaFile"] = file
@@ -69,9 +69,9 @@ HANDLER = {
   10: alwaysZero,
 }
 
-csv.reader(codecs.open(FILES["debitFile"], "r"))
+csv.reader(codecs.open(FILES["debitFile"], "r", "shift_jis"))
 debitEntries = dict()
-for line in csv.reader(codecs.open(FILES["debitFile"], "r")):
+for line in csv.reader(codecs.open(FILES["debitFile"], "r", "shift_jis")):
     if line[0] == "ご利用日":
         continue
     newLine = list()
@@ -105,7 +105,7 @@ HANDLER = {
   3: getDebit,
 }
 rows = dict()
-for line in csv.reader(codecs.open(FILES["kouzaFile"], "r")):
+for line in csv.reader(codecs.open(FILES["kouzaFile"], "r", "shift_jis")):
     if line[0] == "取引日":
         continue
     newLine = list()
