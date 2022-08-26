@@ -15,7 +15,8 @@ if len(sys.argv) != 3:
 
 
 class Transactions():
-    AMOUNT = 6
+    #AMOUNT = 5 # August's payment (8th Month)
+    AMOUNT = 6 # September's payment (9th Month)
 
     def __init__(self):
         self.__transactions = list()
@@ -60,7 +61,12 @@ class Transaction():
     def __init__(self, line: list):
         self.__setDate(line[0])
         self.__setName(line[1])
-        self.__setAmount(line[Transactions.AMOUNT])
+        try:
+            self.__setAmount(line[Transactions.AMOUNT])
+        except ValueError:
+            sys.stderr.write("Value error for Amount: %d: %s\n" % (Transactions.AMOUNT, line[Transactions.AMOUNT]))
+            sys.stderr.write(str(line) + "\n")
+            sys.exit(1)
 
     def __setDate(self, date: str):
         if len(date) > 0:
