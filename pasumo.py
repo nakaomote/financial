@@ -159,7 +159,7 @@ class Transactions:
         def bus(line: list) -> bool:
             if line[Transactions.SOURCE_STATION_NAME] != "共通":
                 return False
-            if not line[Transactions.SOURCE_TRAIN_COMPANY][-2:] == "バス":
+            if not line[Transactions.SOURCE_TRAIN_COMPANY].endswith("バス") and line[Transactions.SOURCE_TRAIN_COMPANY] != "横浜市交通局":
                 return False
             return True
 
