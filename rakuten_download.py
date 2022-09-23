@@ -45,7 +45,7 @@ driver.get("https://fes.rakuten-bank.co.jp/MS/main/RbS?CurrentPageID=START&&COMM
 driver.execute_script("arguments[0].value = '" + settings["user"] + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "LOGIN:USER_ID"))))
 driver.execute_script("arguments[0].value = '" + settings["pass"] + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "LOGIN:LOGIN_PASSWORD"))))
 driver.find_element(By.ID, "LOGIN:_idJsp43").click()
-WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "HEADER:j_id_vf"))).click()
+WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.LINK_TEXT, "入出金明細"))).click()
 
 dt = datetime.now(timezone("Asia/Tokyo"))
 start_date = datetime.now() - timedelta(35)
@@ -55,7 +55,7 @@ driver.execute_script("arguments[0].value = '" + dt.strftime("%Y/%m/%d") + "';",
 
 driver.execute_script("validateInquiryTerm = function validateInquiryTerm(downloadType, accountStartDate, term) { if (downloadType === 1) { document.getElementsByClassName('CREDITDEBITINQUIRY_KOJIN_CSV_DOWNLAOD')[0].click(); } else if (downloadType === 2) { document.getElementsByClassName('CREDITDEBITINQUIRY_KOJIN_PDF_DOWNLAOD')[0].click(); } return; } ")
 
-WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "FORM_DOWNLOAD_IND:j_id_68k"))).click()
+WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.LINK_TEXT, "CSV形式でダウンロード"))).click()
 
 driver.find_element(By.LINK_TEXT, "デビット利用明細はこちら").click()
 
