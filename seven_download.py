@@ -17,6 +17,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver import Keys
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
 
 config = configparser.ConfigParser()
 config.read(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.ini'))
@@ -56,5 +57,9 @@ driver.switch_to.window(driver.window_handles[2])
 WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.ID, "toDetailsDebitDetailRdc"))).send_keys(Keys.CONTROL + Keys.ENTER)
 
 driver.switch_to.window(driver.window_handles[3])
+
+Select(driver.find_element(By.ID, "seq")).select_by_visible_text('2022年8月16日～2022年9月15日分')
+driver.find_element(By.ID, "inquiry").click()
+driver.find_element(By.CSS_SELECTOR, "img[src='/apl/myj/common/images/btn-csv-download.jpg']").click()
 
 time.sleep(360)
