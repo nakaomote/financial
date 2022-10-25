@@ -7,13 +7,18 @@ CSV download
 import requests
 import configparser
 import os
+import sys
 from bs4 import BeautifulSoup
 from datetime import datetime
 from pytz import timezone
 
+if len(sys.argv) != 2:
+    print("Match sony_ account in config.ini")
+    sys.exit(1)
+
 config = configparser.ConfigParser()
 config.read(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.ini'))
-settings = config['sony']
+settings = config["sony_" + sys.argv[1]]
 
 session = requests.Session()
 session.get("https://o2o.moneykit.net/NBG100001G01.html?nc=181029001")
