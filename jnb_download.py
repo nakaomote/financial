@@ -9,6 +9,7 @@ import os
 import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
@@ -19,7 +20,7 @@ config = configparser.ConfigParser()
 config.read(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.ini'))
 settings = config['jnb']
 
-options = Options()
+options = webdriver.ChromeOptions()
 options.add_argument("--disable-extensions")
 options.add_argument("--disable-gpu")
 options.add_argument("disable-infobars")
@@ -36,7 +37,7 @@ options.add_experimental_option("prefs", {
     "safebrowsing.enabled": True,
     "profile.default_content_setting_values.automatic_downloads": 1
 })
-driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 driver.get("https://login.paypay-bank.co.jp/wctx/1D1DFxFDg.do")
 
@@ -45,14 +46,22 @@ driver.execute_script("arguments[0].value = '" + settings["kozano"] + "';", WebD
 driver.execute_script("arguments[0].value = '" + settings["pass"] + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "idPw"))))
 
 driver.find_element(By.ID, "vBtn").click()
-time.sleep(12)
+time.sleep(10)
 
 driver.find_element(By.NAME, "login").click()
+time.sleep(20)
+
 driver.find_element(By.CSS_SELECTOR, "img[src='/commontpl/images/category/welcome_ic003.png']").click()
+
+WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.LINK_TEXT, "期間を選択する"))).click()
+
 Select(driver.find_element(By.NAME, "ShokaiStartDateHiIn")).select_by_visible_text('22')
 driver.find_element(By.CSS_SELECTOR, ".btn[value='照会']").click()
 driver.find_element(By.CSS_SELECTOR, ".btn[value='CSV']").click()
 driver.find_element(By.CLASS_NAME, "notWinOpen").click()
+
+time.sleep(60)
+
 Select(driver.find_element(By.NAME, "SyokaiStDate")).select_by_visible_text('22')
 driver.find_element(By.CSS_SELECTOR, ".btn[value='照会']").click()
 driver.find_element(By.CSS_SELECTOR, ".btn[value='CSV']").click()
