@@ -12,6 +12,7 @@ import time
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -21,7 +22,7 @@ config = configparser.ConfigParser()
 config.read(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.ini'))
 settings = config['rakuten']
 
-options = Options()
+options = webdriver.ChromeOptions()
 options.add_argument("--disable-extensions")
 options.add_argument("--disable-gpu")
 options.add_argument("disable-infobars")
@@ -38,7 +39,7 @@ options.add_experimental_option("prefs", {
     "safebrowsing.enabled": True,
     "profile.default_content_setting_values.automatic_downloads": 1
 })
-driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 driver.get("https://fes.rakuten-bank.co.jp/MS/main/RbS?CurrentPageID=START&&COMMAND=LOGIN")
 
