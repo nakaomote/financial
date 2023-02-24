@@ -52,17 +52,18 @@ driver.find_element(By.NAME, "login").click()
 time.sleep(10)
 
 driver.find_element(By.CSS_SELECTOR, "img[src='/commontpl/images/category/welcome_ic003.png']").click()
-
 WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.LINK_TEXT, "期間を選択する"))).click()
 
-Select(driver.find_element(By.NAME, "ShokaiStartDateHiIn")).select_by_visible_text('22')
-driver.find_element(By.CSS_SELECTOR, ".btn[value='照会']").click()
-driver.find_element(By.CSS_SELECTOR, ".btn[value='CSV']").click()
+Select(driver.find_element(By.NAME, "ShokaiStartDateHiIn")).select_by_visible_text('1')
+WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".btn[value='照会']"))).click()
+WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".btn[value='CSV']"))).click()
+
+time.sleep(10)
+
 driver.find_element(By.CLASS_NAME, "notWinOpen").click()
-
 WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.LINK_TEXT, "期間を選択する"))).click()
 
-Select(driver.find_element(By.NAME, "SyokaiStDate")).select_by_visible_text('22')
+Select(driver.find_element(By.NAME, "SyokaiStDate")).select_by_visible_text('1')
 
 WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".btn[value='照会']"))).click()
 WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".btn[value='CSV']"))).click()
