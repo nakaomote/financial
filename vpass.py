@@ -9,14 +9,16 @@ import sys
 import codecs
 from descriptions import Descriptions
 
-if len(sys.argv) != 3:
-    print("%s <meisai> <balance>" % sys.argv[0])
+if len(sys.argv) != 4:
+    print("%s <meisai> <balance> <amount column>" % sys.argv[0])
+    print("Usually amount column is 5 or 6")
     sys.exit(1)
 
+class EmptyName(Exception):
+    pass
 
 class Transactions():
-    #AMOUNT = 5 # August's payment (8th Month)
-    AMOUNT = 6 # September's payment (9th Month)
+    AMOUNT = int(sys.argv[3])
 
     def __init__(self):
         self.__transactions = list()
@@ -28,7 +30,10 @@ class Transactions():
         for index, value in enumerate(line):
             if index != Transactions.AMOUNT and len(value) > 0:
                 break
-        self.__transactions.append(Transaction(line))
+        try:
+            self.__transactions.append(Transaction(line))
+        except EmptyName:
+            pass
 
     def checkBalance(self):
         startingBalance = balance = int(sys.argv[2].replace(",",""))
@@ -64,7 +69,7 @@ class Transaction():
         try:
             self.__setAmount(line[Transactions.AMOUNT])
         except ValueError:
-            sys.stderr.write("Value error for Amount: %d: %s\n" % (Transactions.AMOUNT, line[Transactions.AMOUNT]))
+            sys.stderr.write("Value error for Amount: %d: '%s'\n" % (Transactions.AMOUNT, line[Transactions.AMOUNT]))
             sys.stderr.write(str(line) + "\n")
             sys.exit(1)
 
@@ -76,6 +81,9 @@ class Transaction():
         self.__date = transactions.getLastDate()
 
     def __setName(self, name: str):
+        if len(name) == 0:
+            raise EmptyName()
+
         self.__name = Descriptions().getName(name)
 
     def __setAmount(self, amount: str):
