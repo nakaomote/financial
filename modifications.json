@@ -1,5 +1,7 @@
 {
     "remove_trailing": [
+        "AMAZON.COM",
+        "AMZN MKTP US",
         "AUDIBLE",
         "IHERB IHERB.COM",
         "Spotify",
@@ -10,5 +12,14 @@
     ],
     "cut_from": [
         "（Viberで送金）"
-    ]
+    ],
+    "substitutions": {
+        "AMAZON CO J": "ＡＭＡＺＯＮ．ＣＯ．Ｊ",
+        "RAKUTENPAY*FAMILY MAR": "ラクテンペイ*ファミリーマートアプ",
+        "RAKUTENPAY*FUJIYAKUHIN G": "ラクテンペイ*フジヤクヒングループア",
+        "RAKUTENPAY*LAWSON APUR": "ラクテンペイ*ロ−ソンアプ",
+        "RAKUTENPAY*RAKUTENPEIAPU": "ラクテンペイ*ラクテンペイアプリセブ",
+        "YUPOTOSETAGAYAREKUCENTR": "ゆうぽうと世田谷レクセンタ",
+        "ラクテンペイ＊": "ラクテンペイ*"
+    }
 }
