@@ -9,6 +9,7 @@ import sys
 import codecs
 import datetime
 import hashlib
+from descriptions import Descriptions
 
 if len(sys.argv) != 3:
     print("%s <meisai> <start-date>" % sys.argv[0])
@@ -36,7 +37,7 @@ class Transaction():
         description = line[1]
         if line[1].startswith("Visaデビット"):
             description = description[16:-1]
-        self.__description = description
+        self.__description = Descriptions().getName(description)
 
     def __setBalance(self):
         self.__balance = int(line[5].replace(",", ""))
