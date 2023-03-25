@@ -33,7 +33,7 @@ options.add_argument('--disable-dev-shm-usage')
 options.add_argument('--no-sandbox')
 options.add_argument("--remote-debugging-port=4444")
 options.add_experimental_option("prefs", {
-    "download.default_directory": "/home/william.fletcher/work/financial",
+    "download.default_directory": os.path.join(os.environ["HOME"], "work/financial"),
     "download.prompt_for_download": False,
     "download.directory_upgrade": True,
     "safebrowsing.enabled": True,
@@ -46,6 +46,7 @@ driver.get("https://fes.rakuten-bank.co.jp/MS/main/RbS?CurrentPageID=START&&COMM
 driver.execute_script("arguments[0].value = '" + settings["user"] + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "LOGIN:USER_ID"))))
 driver.execute_script("arguments[0].value = '" + settings["pass"] + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "LOGIN:LOGIN_PASSWORD"))))
 driver.find_element(By.ID, "LOGIN:_idJsp43").click()
+
 WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.LINK_TEXT, "入出金明細"))).click()
 
 dt = datetime.now(timezone("Asia/Tokyo"))
@@ -63,6 +64,6 @@ driver.find_element(By.LINK_TEXT, "デビット利用明細はこちら").click(
 driver.execute_script("arguments[0].value = '" + start_date.strftime("%m") + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "FORM_DOWNLOAD:EXPECTED_DATE_FROM_MONTH"))))
 driver.execute_script("arguments[0].value = '" + start_date.strftime("%d") + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "FORM_DOWNLOAD:EXPECTED_DATE_FROM_DAY"))))
 
-WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "FORM_DOWNLOAD:_idJsp1385"))).click()
+WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "img[src='/rb/xfes/img/mainservice/CardManagement/button/btn_download_s.gif']"))).click()
 
 time.sleep(10)

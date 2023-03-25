@@ -31,7 +31,7 @@ options.add_argument('--disable-dev-shm-usage')
 options.add_argument('--no-sandbox')
 options.add_argument("--remote-debugging-port=4444")
 options.add_experimental_option("prefs", {
-    "download.default_directory": "/home/william.fletcher/work/financial",
+    "download.default_directory": os.path.join(os.environ["HOME"], "work/financial"),
     "download.prompt_for_download": False,
     "download.directory_upgrade": True,
     "safebrowsing.enabled": True,
