@@ -58,6 +58,10 @@ WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.ID, "toDetailsDeb
 
 driver.switch_to.window(driver.window_handles[3])
 
+if "ご利用代金明細はございません" not in driver.page_source:
+    driver.find_element(By.ID, "inquiry").click()
+    WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "img[src='/apl/myj/common/images/btn-csv-download.jpg']"))).click()
+
 f=(date.today().replace(day=1) - timedelta(days=1)).replace(day=16).strftime("%-Y年%-m月%-d日")
 t=date.today().replace(day=15).strftime("%-Y年%-m月%-d日")
 
