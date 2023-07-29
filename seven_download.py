@@ -4,7 +4,7 @@
 CSV download
 """
 
-from datetime import datetime, timedelta
+from datetime import timedelta,date
 from pytz import timezone
 import configparser
 import os
@@ -58,7 +58,10 @@ WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.ID, "toDetailsDeb
 
 driver.switch_to.window(driver.window_handles[3])
 
-Select(driver.find_element(By.ID, "seq")).select_by_visible_text('2022年8月16日～2022年9月15日分')
+f=(date.today().replace(day=1) - timedelta(days=1)).replace(day=16).strftime("%-Y年%-m月%-d日")
+t=date.today().replace(day=15).strftime("%-Y年%-m月%-d日")
+
+Select(driver.find_element(By.ID, "seq")).select_by_visible_text(f"{f}～{t}分")
 driver.find_element(By.ID, "inquiry").click()
 driver.find_element(By.CSS_SELECTOR, "img[src='/apl/myj/common/images/btn-csv-download.jpg']").click()
 
