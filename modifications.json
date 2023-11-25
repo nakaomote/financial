@@ -15,10 +15,17 @@
     ],
     "substitutions": {
         "AMAZON CO J": "ＡＭＡＺＯＮ．ＣＯ．Ｊ",
+        "DONQUIJOTE MIZONOKUCHIEK": "ドン・キホーテ溝ノ口駅前",
+        "DRUGSEIMSKAWASAKIKAJIGAY": "ドラッグセイムス川崎梶ヶ谷",
+        "LAWSO": "ローソ",
+        "MEGADONQUIJOTE TOMEIKAWA": "ＭＥＧＡドン・キホーテ東名川崎",
         "RAKUTENPAY*FAMILY MAR": "ラクテンペイ*ファミリーマートアプ",
         "RAKUTENPAY*FUJIYAKUHIN G": "ラクテンペイ*フジヤクヒングループア",
+        "RAKUTENPAY*LAPATISSERIES": "ラクテンペイ*フラパティスリーセ",
         "RAKUTENPAY*LAWSON APUR": "ラクテンペイ*ロ−ソンアプ",
         "RAKUTENPAY*RAKUTENPEIAPU": "ラクテンペイ*ラクテンペイアプリセブ",
+        "RAKUTENPAY*TOKYUSTOR": "ラクテンペイ*トウキュウストア　アプ",
+        "SEVEN-ELEVE": "セブンイレブ",
         "YUPOTOSETAGAYAREKUCENTR": "ゆうぽうと世田谷レクセンタ",
         "ラクテンペイ＊": "ラクテンペイ*"
     }

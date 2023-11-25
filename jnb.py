@@ -115,7 +115,7 @@ class Transaction():
         self.__setDescription()
         self.__setDebitAmount()
         self.__popAZeroOrElse()
-        self.__popValueInTitleOrElse("確定", "利用")
+        self.__popValueInTitleOrElse("確定", "利用", "取消")
         self.__popCount(3)
         self.__setDebitID()
         self.__line.pop()
@@ -191,7 +191,7 @@ class Transactions():
             transaction.setBalance(runningBalance)
             transaction.setHash()
         if runningBalance != self.__lastBalance:
-            print("Balances do not match!")
+            print("Balances do not match %d != %d!" % (runningBalance, self.__lastBalance))
             sys.exit(1)
 
         rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
