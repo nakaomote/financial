@@ -3,6 +3,10 @@
 tenno  = 001
 kozano = 777777
 pass   = abcdef
+[sony_s]
+tenno  = 001
+kozano = 777777
+pass   = abcdef
 [rakuten]
 user = user
 pass = abcdef

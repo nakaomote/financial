@@ -24,7 +24,7 @@ class Row(list):
         if len(self.__rows) < 2:
             return True
         return int(self[Row.BALANCE]) + int(self.__rows[1][Row.AMOUNT]) == int(self.__rows[1][Row.BALANCE])
-    def makeHash(self):
+    def makeTransactionId(self):
 
         m = hashlib.md5()
         m.update(
@@ -34,10 +34,9 @@ class Row(list):
         )
         return m.hexdigest()
 
-    def csvRow(self, index):
+    def csvRow(self):
         return (
-            index,
-            self.makeHash(),
+            self.makeTransactionId(),
             self[Row.DATE],
             " ".join([self[1], self[2], self[3], self[4], ]),
             self[Row.AMOUNT],
@@ -49,7 +48,7 @@ soup = BeautifulSoup(f, 'html.parser')
 lst = soup.find_all('table')
 
 rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
-rowWriter.writerow(("Check #", "Txn ID", "Date", "Name", "Amount", "Balance"))
+rowWriter.writerow(("Txn ID", "Date", "Name", "Amount", "Balance"))
 for table in lst:
     printOn = False
     rows: list[Row] = list()
@@ -65,7 +64,7 @@ for table in lst:
                 while columns:
                     Column(columns.pop(0).text).inform(row)
 
-                row[Row.DATE] = datetime.strptime("2023/"+row[Row.DATE], '%Y/%m/%d').strftime("%Y/%m/%d")
+                row[Row.DATE] = datetime.strptime("2023/"+row[Row.DATE], '%Y/%m/%d').strftime("%D")
                 row[Row.BALANCE] = row[Row.BALANCE].replace(",","").replace("\\","")
                 row[Row.AMOUNT] = (row[Row.AMOUNT] or row[Row.BALANCE]).replace(",","")
 
@@ -73,8 +72,8 @@ for table in lst:
                     sys.stderr.write("Error for balance!\n")
                     sys.exit(-1)
 
-    for index,row in enumerate(rows):
-        rowWriter.writerow(row.csvRow(index))
+    for row in rows:
+        rowWriter.writerow(row.csvRow())
 
     if printOn:
         break
