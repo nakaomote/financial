@@ -38,8 +38,8 @@ driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), opti
 
 driver.get("https://entry11.bk.mufg.jp/ibg/dfw/APLIN/loginib/login?_TRANID=AG004_001")
 
-driver.execute_script("arguments[0].value = '" + settings["keiyakuno"] + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "tx-contract-number"))))
-driver.execute_script("arguments[0].value = '" + settings["pass"] + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "tx-ib-password"))))
+WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "tx-contract-number"))).send_keys(settings["keiyakuno"])
+WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "tx-ib-password"))).send_keys(settings["pass"])
 
 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "gonext")))
 driver.find_element(By.CLASS_NAME, "gonext").click()
@@ -48,8 +48,17 @@ WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "
 driver.find_element(By.CLASS_NAME, "detail").click()
 driver.implicitly_wait(10)
 
-driver.find_element(By.CSS_SELECTOR, "img[src='https://directg.s.bk.mufg.jp/refresh/imgs/_DIRECT_IMAGE/YEN/btn_meisai_download_off.gif']").click()
+driver.find_element(By.LINK_TEXT, "明細ダウンロード").click()
+
 WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "appoint")))
 driver.find_element(By.ID, "appoint").click()
 driver.find_element(By.CSS_SELECTOR, "img[src='https://directg.s.bk.mufg.jp/refresh/imgs/_DIRECT_IMAGE/COMMON/btn_download_off.jpg']").click()
+
+time.sleep(10)
+
+WebDriverWait(driver, 3).until(EC.alert_is_present(), "データをダウンロードしますか？")
+
+alert = driver.switch_to.alert
+alert.accept()
+
 time.sleep(10)
