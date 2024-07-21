@@ -70,7 +70,7 @@ class Transaction():
     def getBalance(self) -> int:
         return self.__balance
 
-    def getDescription(self) -> int:
+    def getDescription(self) -> str:
         return self.__description
 
     def __popAZeroOrElse(self):
@@ -119,6 +119,7 @@ class Transaction():
         self.__popCount(3)
         self.__setDebitID()
         self.__line.pop()
+        self.__line.pop()
         self.__zeroOrElse()
 
     def _bank(self, line: list):
@@ -152,18 +153,21 @@ class Transactions():
     """
     def __init__(self):
         if len(sys.argv) == 1:
-            print("%s <meisai> <meisai>" % sys.argv[0])
+            print("%s <year> <month> <day> <meisai> <meisai>" % sys.argv[0])
             sys.exit(1)
+        self.__startYear = int(sys.argv[1])
+        self.__startMonth = int(sys.argv[2])
+        self.__startDay = int(sys.argv[3])
         self.__transactions = list()
         self.__balance = None
         self.__files = dict()
         self.__debitIDs = dict()
-        for file in sys.argv[1:3]:
+        for file in sys.argv[4:6]:
             with codecs.open(file, encoding="shift_jis") as fd:
                 line = fd.readline().rstrip("\n").rstrip("\r")
                 if line == '"操作日(年)","操作日(月)","操作日(日)","操作時刻(時)","操作時刻(分)","操作時刻(秒)","取引順番号","摘要","お支払金額","お預り金額","残高","メモ"':
                     self.__files["_bank"] = file
-                elif line == '"カード番号","利用年","利用月","利用日","利用店名","利用金額（円）","未払金（円）","取引状況","外貨コード","外貨金額","外貨レート","取引明細番号","支払方法"':
+                elif line == '"カード番号","利用年","利用月","利用日","利用店名","利用金額（円）","未払金（円）","取引状況","外貨コード","外貨金額","外貨レート","取引明細番号","支払方法","支払オプション"':
                     self.__files["_debit"] = file
                 else:
                     print("Unknown file: %s" % file)
@@ -172,7 +176,10 @@ class Transactions():
         for line in csv.reader(codecs.open(self.__files[self.__mode], encoding="shift_jis")):
             if line[0] == "カード番号":
                 continue
-            self.__transactions.append(Transaction(self, line))
+            transaction = Transaction(self, line)
+            if datetime.datetime.strptime(transaction.getDate(), '%Y/%m/%d') < datetime.datetime(self.__startYear, self.__startMonth, self.__startDay):
+                continue
+            self.__transactions.append(transaction)
         self.__mode = "_bank"
         for self.__line in csv.reader(codecs.open(self.__files[self.__mode], encoding="shift_jis")):
             if self.__line[0] == "操作日(年)":
@@ -180,7 +187,9 @@ class Transactions():
             if self.__bankDescription().startswith("Vデビット"):
                 self.__getDebit().bankOverDebit(self.__line)
                 continue
-            self.__transactions.append(Transaction(self, self.__line))
+            transaction = Transaction(self, self.__line)
+            if datetime.datetime.strptime(transaction.getDate(), '%Y/%m/%d') > datetime.datetime(self.__startYear, self.__startMonth, self.__startDay):
+                self.__transactions.append(transaction)
 
         transaction: Transaction
         transaction = self.__transactions[0]
