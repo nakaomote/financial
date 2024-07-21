@@ -11,7 +11,6 @@ import os
 import time
 
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
@@ -45,12 +44,13 @@ driver.get("https://fes.rakuten-bank.co.jp/MS/main/RbS?CurrentPageID=START&&COMM
 
 driver.execute_script("arguments[0].value = '" + settings["user"] + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "LOGIN:USER_ID"))))
 driver.execute_script("arguments[0].value = '" + settings["pass"] + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "LOGIN:LOGIN_PASSWORD"))))
-driver.find_element(By.ID, "LOGIN:_idJsp43").click()
+
+WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.LINK_TEXT, "ログイン"))).click()
 
 WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.LINK_TEXT, "入出金明細"))).click()
 
 dt = datetime.now(timezone("Asia/Tokyo"))
-start_date = datetime.now() - timedelta(35)
+start_date = datetime.now() - timedelta(30)
 WebDriverWait(driver, 100).until(lambda driver: driver.execute_script('return document.readyState') == 'complete')
 driver.execute_script("arguments[0].value = '" + start_date.strftime("%Y/%m/%d") + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "FORM_DOWNLOAD_IND:datepicker_from"))))
 driver.execute_script("arguments[0].value = '" + dt.strftime("%Y/%m/%d") + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "FORM_DOWNLOAD_IND:datepicker_to"))))

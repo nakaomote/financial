@@ -33,8 +33,6 @@ class Row(list):
     def checkBalances(self) -> bool:
         if len(self.__rows) < 2:
             return True
-        print(self.__rows[1])
-        print(self[Row.BALANCE])
         return int(self[Row.BALANCE]) + int(self.__rows[1][Row.AMOUNT]) == int(self.__rows[1][Row.BALANCE].replace("¥",""))
     def makeTransactionId(self):
 
