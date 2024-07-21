@@ -15,6 +15,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions as EC
 
 class Column(str):
@@ -86,6 +87,10 @@ driver.execute_script("arguments[0].value = '" + settings["user"] + "';", WebDri
 driver.execute_script("arguments[0].value = '" + settings["pass"] + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.NAME, "Password"))))
 
 WebDriverWait(driver, 180).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "img[src='/img/btn_riyourireki_off.gif']"))).click()
+
+if len(sys.argv) > 0:
+    Select(driver.find_element(By.NAME, "specifyDay")).select_by_visible_text(sys.argv[1])
+    WebDriverWait(driver, 180).until(EC.element_to_be_clickable((By.NAME, "SEARCH"))).click()
 
 WebDriverWait(driver, 180).until(EC.element_to_be_clickable((By.NAME, "RETURNMENU")))
 

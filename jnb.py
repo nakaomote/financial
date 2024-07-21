@@ -230,3 +230,10 @@ class Transactions():
         self.__lastBalance = transaction.getBalance()
 
 Transactions()
+
+# XXX probably need to rewrite to this to use just the bank account .csv file and ignore the debit.csv
+# XXX so don't need to download the debit csv file.
+
+# XXX need to figure out why these transaction hashes keep changing.
+# XXX best to keep a CSV file around and see that they are changing.
+    # XXX see the 'safe' directory.
