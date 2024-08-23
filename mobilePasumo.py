@@ -88,7 +88,7 @@ driver.execute_script("arguments[0].value = '" + settings["pass"] + "';", WebDri
 
 WebDriverWait(driver, 180).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "img[src='/img/btn_riyourireki_off.gif']"))).click()
 
-if len(sys.argv) > 0:
+if len(sys.argv) > 1:
     Select(driver.find_element(By.NAME, "specifyDay")).select_by_visible_text(sys.argv[1])
     WebDriverWait(driver, 180).until(EC.element_to_be_clickable((By.NAME, "SEARCH"))).click()
 

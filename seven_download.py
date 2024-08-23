@@ -70,5 +70,5 @@ Select(driver.find_element(By.ID, "seq")).select_by_visible_text(f"{f}～{t}分"
 driver.find_element(By.ID, "inquiry").click()
 driver.find_element(By.CSS_SELECTOR, "img[src='/apl/myj/common/images/btn-csv-download.jpg']").click()
 
-print("Press any key to continue ;)"
+print("Press any key to continue ;)")
 wait_key()
