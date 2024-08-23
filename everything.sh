@@ -12,7 +12,7 @@ set -o pipefail
 ## TODO: automate this freaking login.
 # ANA suica visa credit card.
 #mv -v ~/ダウンロード/202???.csv ./
-#./vpass.py 202???.csv 10,421 6 | tee vpass.csv
+#./vpass.py 202???.csv "${1}" 6 | tee vpass.csv
 
 # UFJ
 #./ufj_download.py
@@ -31,6 +31,10 @@ set -o pipefail
 #mv ~/ダウンロード/01010a107b19ba0e_* ./
 #./pasumo.py 01010a107b19ba0e_* > ~/work/financial/pasumo-a.csv
 #
+# W's pasumo.
+#mv ~/ダウンロード/01010a109c15d217_* ./
+#./pasumo.py 01010a109c15d217_* > ~/work/financial/pasumo-w.csv
+#
 # Our Sony accounts.
 #for user in $(awk -F '[_\\]]' ' /sony_/ { print $2 } ' config.ini); do
 #    ./sony_download.py "${user}"
@@ -42,9 +46,9 @@ set -o pipefail
 #./rakuten.py RB-debitmeisai.csv RB-torihikimeisai.csv > rakuten.csv
 
 # Mobile pasumo
-#./mobilePasumo.py
-#./mobilePasumo.py | tee mobile.csv
-#./mobilePasumo.py 02 | tee mobile.csv
+# arg: day of month.
+#./mobilePasumo.py ${1:-} | tee mobile.csv
 
 # Olive bank account.
-# ./olive.py meisai\ \(4\).csv | tee olive.csv
+#mv -v /home/ultraviolet/ダウンロード/meisai*.csv ./
+#./olive.py meisai*.csv | tee olive.csv
