@@ -20,3 +20,6 @@ pass   = abcdef
 [seven]
 user = user
 pass = abcdef
+[mobilePasumo]
+user = user
+pass = abcdef

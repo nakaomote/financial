@@ -24,7 +24,7 @@ set -o pipefail
 
 # PayPay bank
 #./jnb_download.py
-#./jnb.py 2024 6 1 NB*.csv | tee jnb.csv
+#./jnb.py 2024 8 1 NB*.csv | tee jnb.csv
 #./jnb.py shiftjis/* | tee jnb.csv
 
 # A's pasumo.

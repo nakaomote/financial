@@ -50,7 +50,7 @@ WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.LINK_TEXT, "ロ�
 WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.LINK_TEXT, "入出金明細"))).click()
 
 dt = datetime.now(timezone("Asia/Tokyo"))
-start_date = datetime.now() - timedelta(120)
+start_date = datetime.now() - timedelta(45)
 WebDriverWait(driver, 100).until(lambda driver: driver.execute_script('return document.readyState') == 'complete')
 driver.execute_script("arguments[0].value = '" + start_date.strftime("%Y/%m/%d") + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "FORM_DOWNLOAD_IND:datepicker_from"))))
 driver.execute_script("arguments[0].value = '" + dt.strftime("%Y/%m/%d") + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "FORM_DOWNLOAD_IND:datepicker_to"))))
