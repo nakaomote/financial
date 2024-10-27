@@ -11,10 +11,6 @@ import datetime
 import hashlib
 from descriptions import Descriptions
 
-if len(sys.argv) != 3:
-    print("%s <meisai> <start-date>" % sys.argv[0])
-    sys.exit(1)
-
 def sonyBank(meisai: str, startDate: str):
     class Transaction():
         def __init__(self, line: list):
@@ -116,4 +112,8 @@ def sonyBank(meisai: str, startDate: str):
     transactions.print()
 
 if __name__ == '__main__':
+    if len(sys.argv) != 3:
+        print("%s <meisai> <start-date>" % sys.argv[0])
+        sys.exit(1)
+
     sonyBank(sys.argv[1], sys.argv[2])
