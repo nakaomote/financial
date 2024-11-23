@@ -7,12 +7,7 @@ UFJ
 import csv
 import sys
 import codecs
-import datetime
 import hashlib
-
-if len(sys.argv) != 2:
-    print("%s <meisai>" % sys.argv[0])
-    sys.exit(1)
 
 class Transaction():
     def __init__(self, line: list):
@@ -34,18 +29,18 @@ class Transaction():
         self.__hash = m.hexdigest()
 
     def __setDescription(self):
-        description = line[1] + (" " + line[2] if len(line[2]) > 0 else "")
+        description = self.line[1] + (" " + self.line[2] if len(self.line[2]) > 0 else "")
         self.__description = description
 
     def __setBalance(self):
-        self.__balance = int(line[5].replace(",", ""))
+        self.__balance = int(self.line[5].replace(",", ""))
 
     def __setAmount(self):
-        if len(line[3]) > 0:
-            self.__amount = 0 - int(line[3].replace(",", ""))
+        if len(self.line[3]) > 0:
+            self.__amount = 0 - int(self.line[3].replace(",", ""))
             return
-        if len(line[4]) > 0:
-            self.__amount = int(line[4].replace(",", ""))
+        if len(self.line[4]) > 0:
+            self.__amount = int(self.line[4].replace(",", ""))
             return
         print("Something wrong with amounts...")
         sys.exit(1)
@@ -98,9 +93,17 @@ class Transactions():
                 transaction.getBalance(),
             ])
 
-transactions = Transactions()
-for line in csv.reader(codecs.open(sys.argv[1], "r", "shift_jis")):
-    if line[0] != "日付":
-        transactions.addTransaction(Transaction(line))
+def ufjBank(meisai: str):
+    transactions = Transactions()
+    for line in csv.reader(codecs.open(meisai, "r", "shift_jis")):
+        if line[0] != "日付":
+            transactions.addTransaction(Transaction(line))
 
-transactions.print()
+    transactions.print()
+
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print("%s <meisai>" % sys.argv[0])
+        sys.exit(1)
+
+    ufjBank(sys.argv[1])
