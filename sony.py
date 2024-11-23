@@ -10,6 +10,34 @@ import codecs
 import datetime
 import hashlib
 from descriptions import Descriptions
+import configparser
+import os
+from sony_download import sonyDownload
+
+def sonyAll(dirname: str):
+    from forge import bankRun
+
+    downloadFile = "YenFutsuRireki.csv"
+
+    def bankRunGenerator(dirname: str, sonySection: str) -> bankRun:
+        finalFile = f"sony-{sonySection}.csv"
+
+        def download():
+            sonyDownload(sonySection)
+
+        def parse():
+            sonyBank(downloadFile, "2021-03-23")
+            os.remove(downloadFile)
+
+        return bankRun(
+            filename=os.path.join(dirname, finalFile),
+            download=download,
+            parse=parse,
+        )
+
+    config = configparser.ConfigParser()
+    config.read(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.ini'))
+    return list(map(lambda x: bankRunGenerator(dirname, x[5:]), filter(lambda x: x.startswith("sony_"), config.sections())))
 
 def sonyBank(meisai: str, startDate: str):
     class Transaction():
