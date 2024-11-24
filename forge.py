@@ -13,8 +13,8 @@ from contextlib import redirect_stdout
 from typing import Union, List
 
 from ufj import ufjAll
-
 from rakuten import rakutenAll
+from seven import sevenAll
 
 @dataclass
 class bankRun:
@@ -50,6 +50,7 @@ if __name__ == '__main__':
             filter(
                 None,
                 flattenRuns([
+                    sevenAll,
                     rakutenAll,
                     sonyAll,
                     ufjAll,

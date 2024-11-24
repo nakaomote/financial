@@ -7,12 +7,38 @@ Seven Bank
 import csv
 import sys
 import codecs
-import datetime
 import hashlib
+import os
+import glob
 
-if len(sys.argv) == 1:
-    print("%s <meisai> <meisai>" % sys.argv[0])
-    sys.exit(1)
+from seven_download import sevenDownload
+
+def sevenAll(dirname: str):
+    from forge import bankRun
+
+    def bankRunGenerator(outputFile: str) -> list[bankRun]:
+        def download():
+            sevenDownload()
+
+        def parse():
+            files = glob.glob(
+                os.path.join(
+                    os.path.dirname(os.path.realpath(__file__)),
+                    "*_debitmeisai.csv"
+                )
+            )
+            sevenBank(files)
+            for file in files:
+                os.remove(file)
+
+        return [bankRun(
+            filename=os.path.join(dirname, outputFile),
+            download=download,
+            parse=parse,
+        )]
+
+    return bankRunGenerator(os.path.join(dirname,"seven.csv"))
+
 
 class BaseTransaction():
     def __init__(self, line: list):
@@ -35,7 +61,7 @@ class BaseTransaction():
         self.__description = self.line[2]
 
     def __setAmount(self):
-        self.__amount = 0 - int(line[3].replace(",", ""))
+        self.__amount = 0 - int(self.line[3].replace(",", ""))
 
     def __setDate(self):
         self.__date = self.line[1].replace("/", "-")
@@ -116,11 +142,19 @@ class Transactions():
             return True
         return False
 
-transactions = Transactions()
-for file in sys.argv[1:]:
-    for line in csv.reader(codecs.open(file, "r", "shift_jis")):
-        if len(line) == 0 or transactions.checkCategoryHeaders(line):
-            continue
-        transactions.addTransaction(line)
+def sevenBank(files: list):
+    transactions = Transactions()
+    for file in files:
+        for line in csv.reader(codecs.open(file, "r", "shift_jis")):
+            if len(line) == 0 or transactions.checkCategoryHeaders(line):
+                continue
+            transactions.addTransaction(line)
 
-transactions.print()
+    transactions.print()
+
+if __name__ == '__main__':
+    if len(sys.argv) == 1:
+        print("%s <meisai> <meisai>" % sys.argv[0])
+        sys.exit(1)
+
+    sevenBank(sys.argv[1:])
