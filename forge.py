@@ -16,6 +16,7 @@ from ufj import ufjAll
 from rakuten import rakutenAll
 from seven import sevenAll
 from jnb import jnbAll
+from olive import oliveAll
 
 @dataclass
 class bankRun:
@@ -51,6 +52,7 @@ if __name__ == '__main__':
             filter(
                 None,
                 flattenRuns([
+                    oliveAll,
                     jnbAll,
                     sevenAll,
                     rakutenAll,
