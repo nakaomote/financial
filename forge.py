@@ -4,7 +4,6 @@
 Run everything.
 """
 
-from os.path import isfile
 from sony import sonyAll
 import os
 from dataclasses import dataclass
@@ -14,7 +13,8 @@ from contextlib import redirect_stdout
 from typing import Union, List
 
 from ufj import ufjAll
-from ufj_download import ufjDownload
+
+from rakuten import rakutenAll
 
 @dataclass
 class bankRun:
@@ -50,6 +50,7 @@ if __name__ == '__main__':
             filter(
                 None,
                 flattenRuns([
+                    rakutenAll,
                     sonyAll,
                     ufjAll,
                 ])
