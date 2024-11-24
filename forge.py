@@ -15,6 +15,7 @@ from typing import Union, List
 from ufj import ufjAll
 from rakuten import rakutenAll
 from seven import sevenAll
+from jnb import jnbAll
 
 @dataclass
 class bankRun:
@@ -50,6 +51,7 @@ if __name__ == '__main__':
             filter(
                 None,
                 flattenRuns([
+                    jnbAll,
                     sevenAll,
                     rakutenAll,
                     sonyAll,

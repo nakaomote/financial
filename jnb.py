@@ -9,8 +9,36 @@ import codecs
 import sys
 import datetime
 import hashlib
+import os
+import glob
 from descriptions import Descriptions
+from jnb_download import jnbDownload
 
+def jnbAll(dirname: str):
+    from forge import bankRun
+
+    def bankRunGenerator(outputFile: str) -> list[bankRun]:
+        def download():
+            jnbDownload()
+
+        def parse():
+            files = glob.glob(
+                os.path.join(
+                    os.path.dirname(os.path.realpath(__file__)),
+                    "NBG*"
+                )
+            )
+            jnbBank("2024", "10", "1", files)
+            for file in files:
+                os.remove(file)
+
+        return [bankRun(
+            filename=os.path.join(dirname, outputFile),
+            download=download,
+            parse=parse,
+        )]
+
+    return bankRunGenerator(os.path.join(dirname,"jnb.csv"))
 
 class Transaction():
     """
@@ -151,18 +179,14 @@ class Transactions():
     """
     Global transactions
     """
-    def __init__(self):
-        if len(sys.argv) == 1:
-            print("%s <year> <month> <day> <meisai> <meisai>" % sys.argv[0])
-            sys.exit(1)
-        self.__startYear = int(sys.argv[1])
-        self.__startMonth = int(sys.argv[2])
-        self.__startDay = int(sys.argv[3])
+    def __init__(self, startYear: str, startMonth: str, startDay: str, files: list):
+        self.__startYear = int(startYear)
+        self.__startMonth = int(startMonth)
+        self.__startDay = int(startDay)
         self.__transactions = list()
-        self.__balance = None
         self.__files = dict()
         self.__debitIDs = dict()
-        for file in sys.argv[4:6]:
+        for file in files:
             with codecs.open(file, encoding="shift_jis") as fd:
                 line = fd.readline().rstrip("\n").rstrip("\r")
                 if line == '"操作日(年)","操作日(月)","操作日(日)","操作時刻(時)","操作時刻(分)","操作時刻(秒)","取引順番号","摘要","お支払金額","お預り金額","残高","メモ"':
@@ -229,7 +253,14 @@ class Transactions():
     def setLastBalance(self, transaction: Transaction):
         self.__lastBalance = transaction.getBalance()
 
-Transactions()
+def jnbBank(startYear: str, startMonth: str, startDay: str, files: list):
+    Transactions(startYear, startMonth, startDay, files)
+
+if __name__ == '__main__':
+    if len(sys.argv) == 1:
+        print("%s <year> <month> <day> <meisai> <meisai>" % sys.argv[0])
+        sys.exit(1)
+    jnbBank(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4:6])
 
 # XXX probably need to rewrite to this to use just the bank account .csv file and ignore the debit.csv
 # XXX so don't need to download the debit csv file.
