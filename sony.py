@@ -19,7 +19,7 @@ def sonyAll(dirname: str):
 
     downloadFile = "YenFutsuRireki.csv"
 
-    def bankRunGenerator(dirname: str, sonySection: str) -> bankRun:
+    def bankRunGenerator(sonySection: str) -> bankRun:
         finalFile = f"sony-{sonySection}.csv"
 
         def download():
@@ -37,7 +37,7 @@ def sonyAll(dirname: str):
 
     config = configparser.ConfigParser()
     config.read(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.ini'))
-    return list(map(lambda x: bankRunGenerator(dirname, x[5:]), filter(lambda x: x.startswith("sony_"), config.sections())))
+    return list(map(lambda x: bankRunGenerator(x[5:]), filter(lambda x: x.startswith("sony_"), config.sections())))
 
 def sonyBank(meisai: str, startDate: str):
     class Transaction():

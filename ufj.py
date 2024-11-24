@@ -8,6 +8,35 @@ import csv
 import sys
 import codecs
 import hashlib
+import os
+import glob
+
+from ufj_download import ufjDownload
+
+def ufjAll(dirname: str):
+    from forge import bankRun
+
+    def bankRunGenerator(outputFile: str) -> list[bankRun]:
+        def download():
+            ufjDownload()
+
+        def parse():
+            downloadFile = glob.glob(
+                os.path.join(
+                    os.path.dirname(os.path.realpath(__file__)),
+                    "0019642_*.csv"
+                )
+            )[0]
+            ufjBank(downloadFile)
+            os.remove(downloadFile)
+
+        return [bankRun(
+            filename=os.path.join(dirname, outputFile),
+            download=download,
+            parse=parse,
+        )]
+
+    return bankRunGenerator(os.path.join(dirname,"ufj.csv"))
 
 class Transaction():
     def __init__(self, line: list):
