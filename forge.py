@@ -18,6 +18,7 @@ from seven import sevenAll
 from jnb import jnbAll
 from olive import oliveAll
 from vpass import vpassAll
+from mobilePasumo import mobilePasumoAll
 
 @dataclass
 class bankRun:
@@ -53,6 +54,7 @@ if __name__ == '__main__':
             filter(
                 None,
                 flattenRuns([
+                    mobilePasumoAll,
                     vpassAll,
                     oliveAll,
                     jnbAll,

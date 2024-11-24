@@ -15,8 +15,11 @@ def vpassAll(dirname: str):
     from forge import bankRun
 
     def bankRunGenerator(outputFile: str) -> list[bankRun]:
+        balance = None
+
         def download():
-            pass
+            nonlocal balance
+            balance = input("Specify balance for vpass: ")
 
         def parse():
             file = glob.glob(
@@ -26,7 +29,7 @@ def vpassAll(dirname: str):
                     "202???.csv"
                 )
             )[0]
-            vpassBank(file, "18,770", "6")
+            vpassBank(file, str(balance), "6")
             os.remove(file)
 
         return [bankRun(

@@ -8,11 +8,6 @@ set -o pipefail
 ##   - This should avoid a lot of issues.
 ##   - Need to make sure if items change...
 
-## TODO: automate this freaking login.
-# ANA suica visa credit card.
-#mv -v ~/ダウンロード/202???.csv ./
-#./vpass.py 202???.csv "${1}" 6 | tee vpass.csv
-
 # A's pasumo.
 #mv ~/ダウンロード/01010a107b19ba0e_* ./
 #./pasumo.py 01010a107b19ba0e_* > ~/work/financial/pasumo-a.csv
@@ -20,7 +15,3 @@ set -o pipefail
 # W's pasumo.
 #mv ~/ダウンロード/01010a109c15d217_* ./
 #./pasumo.py 01010a109c15d217_* > ~/work/financial/pasumo-w.csv
-
-# Mobile pasumo
-# arg: day of month.
-#./mobilePasumo.py ${1:-} | tee mobile.csv
