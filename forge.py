@@ -35,6 +35,7 @@ def doRun(run: bankRun) -> Union[str, None]:
         run.parse()
     with open(run.filename, "w") as rb:
             rb.write(f.getvalue())
+    print(f"Created {run.filename}")
     return run.filename
 
 if __name__ == '__main__':
@@ -54,14 +55,14 @@ if __name__ == '__main__':
             filter(
                 None,
                 flattenRuns([
-                    mobilePasumoAll,
                     vpassAll,
-                    oliveAll,
+                    mobilePasumoAll,
                     jnbAll,
                     sevenAll,
                     rakutenAll,
                     sonyAll,
                     ufjAll,
+                    oliveAll,
                 ])
         ))
 

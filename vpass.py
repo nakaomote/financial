@@ -20,6 +20,8 @@ def vpassAll(dirname: str):
         def download():
             nonlocal balance
             balance = input("Specify balance for vpass: ")
+            while input("Download vpass file and type 'yes': ") != "yes":
+                pass
 
         def parse():
             file = glob.glob(

@@ -18,17 +18,30 @@ def jnbAll(dirname: str):
     from forge import bankRun
 
     def bankRunGenerator(outputFile: str) -> list[bankRun]:
+        year = None
+        month = None
+        day = None
+
         def download():
+            nonlocal year
+            nonlocal month
+            nonlocal day
+            year = input("Start year (jnb): ")
+            month = input("Start month (jnb): ")
+            day = input("Start day (jnb): ")
             jnbDownload()
 
         def parse():
+            nonlocal year
+            nonlocal month
+            nonlocal day
             files = glob.glob(
                 os.path.join(
                     os.path.dirname(os.path.realpath(__file__)),
                     "NBG*"
                 )
             )
-            jnbBank("2024", "10", "1", files)
+            jnbBank(year,month,day,files)
             for file in files:
                 os.remove(file)
 
@@ -224,7 +237,7 @@ class Transactions():
             transaction.setBalance(runningBalance)
             transaction.setHash()
         if runningBalance != self.__lastBalance:
-            print("Balances do not match %d != %d!" % (runningBalance, self.__lastBalance))
+            sys.stderr.write("Balances do not match %d != %d!" % (runningBalance, self.__lastBalance) + "\n")
             sys.exit(1)
 
         rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
