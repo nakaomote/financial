@@ -28,7 +28,7 @@ def mobilePasumoAll(dirname: str):
 
         def download():
             nonlocal specifyDay
-            specifyDay = input("Start date (blank for current day): ")
+            specifyDay = input("mobilePasumo: End date (blank for current day) (ie; 01): ")
 
         def parse():
             nonlocal specifyDay
@@ -79,8 +79,9 @@ def mobilePasumoBank(specifyDay: Union[None, str]):
                 self[Row.BALANCE]
             )
 
-    if datetime.now().strftime("%Y") != "2024":
-        print("Time to check on the year problem, it's not 2024")
+    currentYear = "2025"
+    if datetime.now().strftime("%Y") != currentYear:
+        print("Time to check on the year problem, it's not %s" % currentYear)
         sys.exit(-1)
 
     options = webdriver.ChromeOptions()
@@ -141,7 +142,7 @@ def mobilePasumoBank(specifyDay: Union[None, str]):
                     while columns:
                         Column(columns.pop(0).text).inform(row)
 
-                    row[Row.DATE] = datetime.strptime("2024/"+row[Row.DATE], '%Y/%m/%d').strftime("%D")
+                    row[Row.DATE] = datetime.strptime(currentYear+"/"+row[Row.DATE], '%Y/%m/%d').strftime("%D")
                     row[Row.BALANCE] = row[Row.BALANCE].replace("¥","").replace(",","").replace("\\","")
                     row[Row.AMOUNT] = (row[Row.AMOUNT] or row[Row.BALANCE]).replace(",","")
 
@@ -156,4 +157,4 @@ def mobilePasumoBank(specifyDay: Union[None, str]):
             break
 
 if __name__ == '__main__':
-    mobilePasumoBank(sys.argv[1])
+    mobilePasumoBank((sys.argv[1:2] or [None])[0])
