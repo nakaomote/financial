@@ -48,7 +48,7 @@ def sevenDownload():
     driver.execute_script("arguments[0].value = '" + settings["pass"] + "';", WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "cphBizConf_txtLogonPw"))))
     driver.find_element(By.ID, "cphBizConf_btnLogon").send_keys(Keys.CONTROL + Keys.ENTER)
 
-    WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "cphBizConf_lnkMyJCB"))).send_keys(Keys.CONTROL + Keys.ENTER + Keys.ENTER)
+    WebDriverWait(driver, 180).until(EC.element_to_be_clickable((By.ID, "cphBizConf_lnkMyJCB"))).send_keys(Keys.CONTROL + Keys.ENTER + Keys.ENTER)
 
     driver.switch_to.window(driver.window_handles[1])
     WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.ID, "cphBizConf_btnDebitDetail"))).send_keys(Keys.CONTROL + Keys.ENTER + Keys.ENTER)

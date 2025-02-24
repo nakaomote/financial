@@ -13,7 +13,8 @@ def oliveAll(dirname: str):
 
     def bankRunGenerator(outputFile: str) -> list[bankRun]:
         def download():
-            pass
+            while input("Download olive file and type 'yes': ") != "yes":
+                pass
 
         def parse():
             file = glob.glob(
