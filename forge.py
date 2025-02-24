@@ -4,6 +4,7 @@
 Run everything.
 """
 
+from neobank import neobankAll
 from sony import sonyAll
 import os
 from dataclasses import dataclass
@@ -55,6 +56,7 @@ if __name__ == '__main__':
             filter(
                 None,
                 flattenRuns([
+                    neobankAll,
                     vpassAll,
                     mobilePasumoAll,
                     jnbAll,
