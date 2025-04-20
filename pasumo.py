@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Reading in pasumo data from Suica リーダー + 家計簿 = スイ家計簿's CSV file

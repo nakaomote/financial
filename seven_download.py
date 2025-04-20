@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 CSV download
@@ -8,7 +8,6 @@ from datetime import timedelta,date
 import configparser
 import os
 
-from console.utils import wait_key
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
@@ -68,9 +67,6 @@ def sevenDownload():
     Select(driver.find_element(By.ID, "seq")).select_by_visible_text(f"{fromDate}～{tooDate}分")
     driver.find_element(By.ID, "inquiry").click()
     driver.find_element(By.CSS_SELECTOR, "img[src='/apl/myj/common/images/btn-csv-download.jpg']").click()
-
-    print("Press any key to continue ;)")
-    wait_key()
 
 if __name__ == '__main__':
     sevenDownload()

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 CSV download
@@ -7,7 +7,6 @@ CSV download
 import configparser
 import os
 import time
-from console.utils import wait_key
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -75,9 +74,6 @@ def jnbDownload():
 
     WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".btn[value='照会']"))).click()
     WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.LINK_TEXT, "CSV"))).click()
-
-    print("Press any key to continue ;)")
-    wait_key()
 
 if __name__ == '__main__':
     jnbDownload()
