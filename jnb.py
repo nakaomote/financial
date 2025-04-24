@@ -86,8 +86,10 @@ def jnbBank(startYear: str, startMonth: str, startDay: str, file: str):
             if dateTimeBase < datetime.datetime(int(startYear), int(startMonth), int(startDay)):
                 return None
             sameDayCount = last.this().sameDayCount + 1 if last and last.this() and last.this().dateString == dateTimeString else 0
+            debitRemoveDescription = Descriptions().getName(mapOfValues["摘要"].replace("Vデビット　", ""))
+            description = debitRemoveDescription[0:debitRemoveDescription.index("　2A")] if "　2A" in debitRemoveDescription else debitRemoveDescription
             return JnbTransaction(
-                description=Descriptions().getName(mapOfValues["摘要"].replace("Vデビット　", "")),
+                description=description,
                 dateString=dateTimeString,
                 datetime=dateTimeBase,
                 amount=0 - int(mapOfValues["お支払金額"] or 0) + int(mapOfValues["お預り金額"] or 0),
