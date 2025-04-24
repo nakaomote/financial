@@ -7,6 +7,7 @@ CSV download
 from datetime import timedelta,date
 import configparser
 import os
+import time
 
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
@@ -67,6 +68,8 @@ def sevenDownload():
     Select(driver.find_element(By.ID, "seq")).select_by_visible_text(f"{fromDate}～{tooDate}分")
     driver.find_element(By.ID, "inquiry").click()
     driver.find_element(By.CSS_SELECTOR, "img[src='/apl/myj/common/images/btn-csv-download.jpg']").click()
+
+    time.sleep(10)
 
 if __name__ == '__main__':
     sevenDownload()
