@@ -3,6 +3,7 @@
 from functools import reduce
 from typing import Any, Callable, Union
 from dataclasses import dataclass
+import datetime
 
 def getLazyRows(fileReader: Callable) -> list[Callable]:
     return list(map(lambda csvRow: lambda handler: handler(enumerate(csvRow)), fileReader()))
@@ -25,15 +26,27 @@ def getDictOfLazyRowsFromLazyRowList(lazyRows: list, columns: dict) -> list[Call
     )
 
 @dataclass
+class StandardBankTransaction:
+    description: str
+    dateString: str
+    datetime: datetime.datetime
+    amount: int
+    balance: int
+    sameDayCount: int
+
+    def createTransactionId(self):
+        return self.dateString.replace("/","") + "%04d" % self.sameDayCount
+
+@dataclass
 class LinkedRow:
     index: int
     last: Union['LinkedRow',None]
     this: Callable
 
-def getLazyValue(function: Callable):
+def getLazyValue(function: Callable, defaultHandler: Callable = lambda x: x):
     response = None # I'm sorry mutations.
     set = None
-    def run(handler: Callable = lambda x: x):
+    def run(handler: Callable = defaultHandler):
         nonlocal response
         nonlocal set
         if set is None:
@@ -51,8 +64,8 @@ def reduceLinkedRow(indexAndFunction: tuple, last: Union[LinkedRow,None]) -> Lin
         this=function,
     )
 
-def getLazyDictLinkedListWithHandler(fileReader: Callable) -> list[LinkedRow]:
-    listOfDictFunctions = list(map(lambda function: getLazyValue(function), getDictOfLazyRowsWithHeader(fileReader)))
+def getLazyDictLinkedListWithHandler(fileReader: Callable, defaultHandler: Callable = lambda x: x) -> list[LinkedRow]:
+    listOfDictFunctions = list(map(lambda function: getLazyValue(function, defaultHandler), getDictOfLazyRowsWithHeader(fileReader)))
     return list(
         reduce(
             lambda acc, indexAndFunction: acc + [reduceLinkedRow(indexAndFunction, acc[-1] if len(acc) > 0 else None)],
@@ -67,7 +80,7 @@ def getDictOfLazyRowsWithHeader(fileReader: Callable) -> list[Callable]:
     return getDictOfLazyRowsFromLazyRowList(lazyRows[1:], columns)
 
 
-def mapCsvRowsIgnoreNone(fileReader: Callable, mapFunction: Callable):
+def mapCsvRowsIgnoreNone(fileReader: Callable, mapFunction: Callable, defaultHandler: Callable = lambda x: x):
     def ignoreNone(acc: list, value: LinkedRow):
         response = mapFunction(value)
         return acc if response is None else acc + [response]
@@ -76,7 +89,44 @@ def mapCsvRowsIgnoreNone(fileReader: Callable, mapFunction: Callable):
             ignoreNone,
             getLazyDictLinkedListWithHandler(
                 fileReader=fileReader,
+                defaultHandler=defaultHandler,
             ),
             [],
         )
     )
+
+
+def standardBankRowHandlerGeneration(
+    getDateTimeBase: Callable,
+    getSkipBeforeStartDateCheck: Callable,
+    getDescription: Callable,
+    getAmount: Callable,
+    getBalance: Callable,
+) -> Callable:
+    def standardBankRowHandler(value: LinkedRow):
+        last: Union[LinkedRow,None] = value.last
+        def mapToDataClass(mapOfValues: dict):
+            dateTimeBase = getDateTimeBase(mapOfValues)
+            if getSkipBeforeStartDateCheck(dateTimeBase):
+                return None
+            dateTimeString = dateTimeBase.strftime('%Y/%m/%d')
+            sameDayCount = last.this().sameDayCount + 1 \
+                if last and last.this() and last.this().dateString == dateTimeString \
+                else 0
+            return StandardBankTransaction(
+                description = getDescription(mapOfValues),
+                dateString = dateTimeString,
+                datetime = dateTimeBase,
+                amount = getAmount(mapOfValues),
+                balance = getBalance(mapOfValues),
+                sameDayCount = sameDayCount
+            )
+
+        transaction: StandardBankTransaction = value.this(mapToDataClass)
+        if last is not None and last.this() and transaction is not None:
+            lastTransaction: StandardBankTransaction = last.this()
+            if lastTransaction.balance + transaction.amount != transaction.balance:
+                raise Exception("Balance not matching!")
+
+        return transaction
+    return standardBankRowHandler

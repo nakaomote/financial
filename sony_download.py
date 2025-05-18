@@ -47,7 +47,6 @@ def sonyDownload(configSection: str):
         "LoginKS": "1",
         "__type": "0023",
         "__uid": settings["tenno"] + settings["kozano"],
-        "__sid": post["__sid"],
         "__gid": "NBP010105G01",
         "__fid": "NBP010116",
         "B_ID": "001",

@@ -56,14 +56,14 @@ if __name__ == '__main__':
             filter(
                 None,
                 flattenRuns([
-                    neobankAll,
                     vpassAll,
                     mobilePasumoAll,
                     jnbAll,
                     sevenAll,
                     rakutenAll,
-                    sonyAll,
                     ufjAll,
+                    sonyAll,
+                    neobankAll,
                     oliveAll,
                 ])
         ))

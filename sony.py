@@ -7,11 +7,12 @@ Sony Bank
 import csv
 import sys
 import codecs
-import datetime
+from datetime import datetime
 import hashlib
 from descriptions import Descriptions
 import configparser
 import os
+from funktions import StandardBankTransaction, mapCsvRowsIgnoreNone, standardBankRowHandlerGeneration
 from sony_download import sonyDownload
 
 def sonyAll(dirname: str):
@@ -26,7 +27,7 @@ def sonyAll(dirname: str):
             sonyDownload(sonySection)
 
         def parse():
-            sonyBank(downloadFile, "2021-03-23")
+            sonyBank(downloadFile, "2025-03-23")
             os.remove(downloadFile)
 
         return bankRun(
@@ -40,104 +41,53 @@ def sonyAll(dirname: str):
     return list(map(lambda x: bankRunGenerator(x[5:]), filter(lambda x: x.startswith("sony_"), config.sections())))
 
 def sonyBank(meisai: str, startDate: str):
-    class Transaction():
-        def __init__(self, line: list):
-            self.line = line
-            self.__setDate()
-            self.__setBalance()
-            self.__setAmount()
-            self.__setDescription()
-            self.__setHash()
+    dateTimeStartDate = datetime.strptime(startDate, '%Y-%m-%d')
 
-        def __setHash(self):
-            m = hashlib.md5()
-            m.update(
-                self.getDate().encode("utf-8") +
-                str(self.getBalance()).encode("utf-8") +
-                str(self.getAmount()).encode("utf-8")
+    def getDateTimeBase(mapOfValues) -> datetime:
+        return datetime.strptime(mapOfValues["取引日"], "%Y年%m月%d日")
+
+    def getDescription(mapOfValues):
+        baseDescription = mapOfValues["摘要"]
+        return Descriptions().getName(
+            baseDescription.split("　")[-1]
+            if baseDescription.startswith("Visaデビット")
+            else baseDescription
+        )
+
+    def getAmount(mapOfValues) -> int:
+        return 0 - int(float(mapOfValues["引出額"] or 0)) + int(float(mapOfValues["預入額"] or 0))
+
+    def getBalance(mapOfValues) -> int:
+        return int(float(mapOfValues["差引残高"]))
+
+    def readCsvFile():
+        return csv.reader(codecs.open(meisai, "r", "shift_jis"))
+
+    def skipBeforeStartDateCheck(dateTimeBase: datetime) -> bool:
+        return dateTimeBase < dateTimeStartDate
+
+    listofTransactions: list[StandardBankTransaction] = \
+        mapCsvRowsIgnoreNone(
+            fileReader = readCsvFile,
+            mapFunction = standardBankRowHandlerGeneration(
+                getDateTimeBase = getDateTimeBase,
+                getSkipBeforeStartDateCheck = skipBeforeStartDateCheck,
+                getDescription = getDescription,
+                getAmount = getAmount,
+                getBalance = getBalance,
             )
-            self.__hash = m.hexdigest()
+        )
 
-        def __setDescription(self):
-            description = line[1]
-            if line[1].startswith("Visaデビット"):
-                description = description[16:-1]
-            self.__description = Descriptions().getName(description)
-
-        def __setBalance(self):
-            self.__balance = int(line[5].replace(",", ""))
-
-        def __setAmount(self):
-            if len(line[4]) > 0:
-                self.__amount = 0 - int(line[4].replace(",", ""))
-                return
-            if len(line[3]) > 0:
-                self.__amount = int(line[3].replace(",", ""))
-                return
-            print("Something wrong with amounts...")
-            sys.exit(1)
-
-        def __setDate(self):
-            date = self.line[0]
-            for rep in ("年", "月"):
-                date = date.replace(rep, "-")
-            self.__date = date.replace("日", "")
-
-        def getAmount(self) -> int:
-            return self.__amount
-
-        def getBalance(self) -> int:
-            return self.__balance
-
-        def getDate(self) -> str:
-            return self.__date
-
-        def getHash(self) -> str:
-            return self.__hash
-
-        def getDescription(self) -> str:
-            return self.__description
-
-        def getDateTimestamp(self) -> int:
-            return int(datetime.datetime.strptime(self.getDate(), "%Y-%m-%d").strftime("%s"))
-
-    class Transactions():
-        def __init__(self, startDate):
-            self.__startDate = int(datetime.datetime.strptime(startDate, "%Y-%m-%d").strftime("%s"))
-            self.__transactions = list()
-            self.__balance = None
-
-        def addTransaction(self, transaction: Transaction):
-            if (transaction.getDateTimestamp() > self.__startDate):
-                self.checkBalance(transaction)
-                self.__transactions.append(transaction)
-
-        def checkBalance(self, transaction: Transaction):
-            if self.__balance is None:
-                self.__balance = transaction.getBalance()
-                return
-            self.__balance += transaction.getAmount()
-            if self.__balance != transaction.getBalance():
-                print("Balance does not match......")
-                sys.exit(1)
-
-        def print(self):
-            rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
-            for transaction in self.__transactions:
-                rowWriter.writerow([
-                    transaction.getHash(),
-                    transaction.getDate(),
-                    transaction.getDescription(),
-                    transaction.getAmount(),
-                    transaction.getBalance(),
-                ])
-
-    transactions = Transactions(startDate)
-    for line in csv.reader(codecs.open(meisai, "r")):
-        if line[0] != "お取り引き日":
-            transactions.addTransaction(Transaction(line))
-
-    transactions.print()
+    rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
+    rowWriter.writerow(("Txn ID", "Date", "Name", "Amount", "Balance"))
+    for transaction in listofTransactions:
+        rowWriter.writerow((
+            transaction.createTransactionId(),
+            transaction.dateString,
+            transaction.description,
+            transaction.amount,
+            transaction.balance,
+        ))
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:

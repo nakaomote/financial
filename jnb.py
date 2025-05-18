@@ -82,9 +82,9 @@ def jnbBank(startYear: str, startMonth: str, startDay: str, file: str):
                                     ),
                                 '%Y/%m/%d'
                             )
-            dateTimeString = dateTimeBase.strftime('%Y/%m/%d')
             if dateTimeBase < datetime.datetime(int(startYear), int(startMonth), int(startDay)):
                 return None
+            dateTimeString = dateTimeBase.strftime('%Y/%m/%d')
             sameDayCount = last.this().sameDayCount + 1 if last and last.this() and last.this().dateString == dateTimeString else 0
             debitRemoveDescription = Descriptions().getName(mapOfValues["摘要"].replace("Vデビット　", ""))
             description = debitRemoveDescription[0:debitRemoveDescription.index("　2A")] if "　2A" in debitRemoveDescription else debitRemoveDescription
