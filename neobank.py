@@ -16,7 +16,8 @@ def neobankAll(dirname: str):
     def bankRunGenerator(outputFile: str) -> list[bankRun]:
 
         def download():
-            pass
+            while input("Download neobank csv file and type 'yes': ") != "yes":
+                pass
 
         def parse():
             file = glob.glob(
@@ -102,3 +103,6 @@ def neobankBank(filename: str):
 if __name__ == '__main__':
     FILE = 1
     neobankBank(sys.argv[FILE])
+
+# TODO: Fix bug in this that has international items not billed correctly due to a fee.
+# The value comes in from the column "海外事務手数料"

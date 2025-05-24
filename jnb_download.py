@@ -75,5 +75,8 @@ def jnbDownload():
     WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".btn[value='照会']"))).click()
     WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.LINK_TEXT, "CSV"))).click()
 
+    time.sleep(10)
+    driver.quit()
+
 if __name__ == '__main__':
     jnbDownload()

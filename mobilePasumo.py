@@ -156,5 +156,7 @@ def mobilePasumoBank(specifyDay: Union[None, str]):
         if printOn:
             break
 
+    driver.quit()
+
 if __name__ == '__main__':
     mobilePasumoBank((sys.argv[1:2] or [None])[0])

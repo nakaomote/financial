@@ -63,8 +63,8 @@ if __name__ == '__main__':
                     rakutenAll,
                     ufjAll,
                     sonyAll,
-                    neobankAll,
                     oliveAll,
+                    neobankAll,
                 ])
         ))
 

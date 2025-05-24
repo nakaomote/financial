@@ -68,6 +68,7 @@ def rakutenDownload():
     WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "img[src='/rb/xfes/img/mainservice/CardManagement/button/btn_download_s.gif']"))).click()
 
     time.sleep(10)
+    driver.quit()
 
 if __name__ == '__main__':
     rakutenDownload()

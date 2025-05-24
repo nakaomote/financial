@@ -5,10 +5,10 @@ Sony Bank
 """
 
 import csv
+import glob
 import sys
 import codecs
 from datetime import datetime
-import hashlib
 from descriptions import Descriptions
 import configparser
 import os
@@ -18,17 +18,23 @@ from sony_download import sonyDownload
 def sonyAll(dirname: str):
     from forge import bankRun
 
-    downloadFile = "YenFutsuRireki.csv"
-
     def bankRunGenerator(sonySection: str) -> bankRun:
         finalFile = f"sony-{sonySection}.csv"
 
         def download():
-            sonyDownload(sonySection)
+            while input(f"Download sony csv file for '{sonySection}' and type 'yes': ") != "yes":
+                pass
 
         def parse():
-            sonyBank(downloadFile, "2025-03-23")
-            os.remove(downloadFile)
+            file = glob.glob(
+                os.path.join(
+                    os.environ["HOME"],
+                    "ダウンロード",
+                    "FutsuRireki.csv"
+                )
+            )[0]
+            sonyBank(file, "2025-03-23")
+            os.remove(file)
 
         return bankRun(
             filename=os.path.join(dirname, finalFile),
