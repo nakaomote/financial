@@ -70,7 +70,7 @@ def neobankBank(filename: str):
             epoch=getEpoch(),
             date=getElement(DATE),
             # lazily avoiding dealing with potential prefixed +
-            amount=int("-"+getElement(EXPENSE).replace(".00","")),
+            amount=0-int(float(getElement(EXPENSE))),
             name=getElement(DESCRIPTION),
         )
 
