@@ -126,7 +126,16 @@ def standardBankRowHandlerGeneration(
         if last is not None and last.this() and transaction is not None:
             lastTransaction: StandardBankTransaction = last.this()
             if lastTransaction.balance + transaction.amount != transaction.balance:
-                raise Exception("Balance not matching!")
+                print(transaction.amount)
+                raise Exception(
+                        f"""
+                            Balance not matching ->
+                            lastTransaction.balance: {lastTransaction.balance}
+                            transaction.balance: {transaction.balance}
+                            transaction.amount: {transaction.amount}
+                            {lastTransaction.balance} != {transaction.balance}
+                        """
+                )
 
         return transaction
     return standardBankRowHandler
