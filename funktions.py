@@ -119,9 +119,11 @@ def mapCsvRowsIgnoreNone(fileReader: Callable, mapFunction: Callable, defaultHan
 
 def checkTransactionBalance(
         last: Union[LinkedRow,None],
-        transaction: StandardBankTransaction
+        transaction: Union[StandardBankTransaction,None]
 ):
-    if last is not None and last.this() and transaction is not None:
+    if transaction is None:
+        return
+    if last is not None and last.this():
         lastTransaction: StandardBankTransaction = last.this()
         if lastTransaction.balance + transaction.amount != transaction.balance:
             raise Exception(
@@ -162,8 +164,7 @@ def standardBankRowHandlerGeneration(
             )
 
         transaction: StandardBankTransaction = value.this(mapToDataClass)
-        if transaction.balance is not None:
-            checkTransactionBalance(last, transaction)
+        checkTransactionBalance(last, transaction)
 
         return transaction
     return standardBankRowHandler
