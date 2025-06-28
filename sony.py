@@ -12,7 +12,7 @@ from datetime import datetime
 from descriptions import Descriptions
 import configparser
 import os
-from funktions import StandardBankTransaction, mapCsvRowsIgnoreNone, standardBankRowHandlerGeneration
+from funktions import standardBankRowHandlerGeneration, writeUploadableTransactionsCSV
 from sony_download import sonyDownload
 
 def sonyAll(dirname: str):
@@ -33,7 +33,7 @@ def sonyAll(dirname: str):
                     "FutsuRireki.csv"
                 )
             )[0]
-            sonyBank(file, "2025-03-23")
+            sonyBank(file, "2025-05-23")
             os.remove(file)
 
         return bankRun(
@@ -72,28 +72,16 @@ def sonyBank(meisai: str, startDate: str):
     def skipBeforeStartDateCheck(dateTimeBase: datetime) -> bool:
         return dateTimeBase < dateTimeStartDate
 
-    listofTransactions: list[StandardBankTransaction] = \
-        mapCsvRowsIgnoreNone(
-            fileReader = readCsvFile,
-            mapFunction = standardBankRowHandlerGeneration(
-                getDateTimeBase = getDateTimeBase,
-                getSkipBeforeStartDateCheck = skipBeforeStartDateCheck,
-                getDescription = getDescription,
-                getAmount = getAmount,
-                getBalance = getBalance,
-            )
+    writeUploadableTransactionsCSV(
+        fileReader = readCsvFile,
+        mapFunction = standardBankRowHandlerGeneration(
+            getDateTimeBase = getDateTimeBase,
+            getSkipBeforeStartDateCheck = skipBeforeStartDateCheck,
+            getDescription = getDescription,
+            getAmount = getAmount,
+            getBalance = getBalance,
         )
-
-    rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
-    rowWriter.writerow(("Txn ID", "Date", "Name", "Amount", "Balance"))
-    for transaction in listofTransactions:
-        rowWriter.writerow((
-            transaction.createTransactionId(),
-            transaction.dateString,
-            transaction.description,
-            transaction.amount,
-            transaction.balance,
-        ))
+    )
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
