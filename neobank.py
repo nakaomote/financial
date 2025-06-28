@@ -6,9 +6,10 @@ import glob
 import os
 import sys
 import codecs
-from dataclasses import dataclass
-from collections import defaultdict
 from datetime import datetime
+from typing import Union
+from descriptions import Descriptions
+from funktions import standardBankRowHandlerGeneration, writeUploadableTransactionsCSV
 
 def neobankAll(dirname: str):
     from forge import bankRun
@@ -39,66 +40,40 @@ def neobankAll(dirname: str):
 
     return bankRunGenerator(os.path.join(dirname,"neobank.csv"))
 
-def neobankBank(filename: str):
-    DATE = "お取引日"
-    EXPENSE = "お取引金額"
-    DESCRIPTION = "お取引内容"
+def neobankBank(meisai: str):
 
-    @dataclass
-    class transaction:
-        epoch: str
-        date: str
-        amount: int
-        name: str
+    def getDateTimeBase(mapOfValues) -> datetime:
+        return datetime.strptime(mapOfValues["お取引日"], "%Y/%m/%d")
 
-    columns = {}
-    epochIncrements = defaultdict(int)
+    def getDescription(mapOfValues):
+        baseDescription = mapOfValues["お取引内容"]
+        return Descriptions().getName(baseDescription)
 
-    def handleRemainingLines(line: list):
-        def getElement(column: str) -> str:
-            return line[columns[column]]
+    def getAmount(mapOfValues) -> int:
+        amount = mapOfValues["お取引金額"]
+        return 0 - int(float(amount))
 
-        def getEpoch() -> str:
-            nonlocal columns
-            nonlocal epochIncrements
-            epoch = int(datetime.strptime(getElement(DATE), '%Y/%m/%d').strftime("%s"))
-            epochIncrements[epoch]+=1
-            return str(epoch * 100 + (100-epochIncrements[epoch]))
-
-        nonlocal columns
-        return transaction(
-            epoch=getEpoch(),
-            date=getElement(DATE),
-            # lazily avoiding dealing with potential prefixed +
-            amount=0-int(float(getElement(EXPENSE))),
-            name=getElement(DESCRIPTION),
-        )
-
-    def handleFirstLine(line: list):
-        nonlocal handler
-        nonlocal columns
-        columns = dict(map(lambda numberValue: (numberValue[1],numberValue[0]), enumerate(line)))
-        handler = handleRemainingLines
+    def getBalance(mapOfValues) -> Union[int, None]:
         return None
 
-    handler = handleFirstLine
-    def handle(line: list):
-        return handler(line)
+    def readCsvFile():
+        return csv.reader(codecs.open(meisai, "r", "shift_jis"))
 
-    def getTransactions() -> list[transaction]:
-        return list(reversed([ item for item in
-                    map( handle, csv.reader(codecs.open(filename, "r", "shift_jis")))
-                if item is not None ]))
+    def skipBeforeStartDateCheck(dateTimeBase: datetime) -> bool:
+        return False
 
-    rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
-    rowWriter.writerow(("Txn ID", "Date", "Name", "Amount"))
-    for row in getTransactions():
-        rowWriter.writerow((
-            row.epoch,
-            row.date,
-            row.name,
-            row.amount,
-        ))
+    writeUploadableTransactionsCSV(
+        fileReader = readCsvFile,
+        mapFunction = standardBankRowHandlerGeneration(
+            getDateTimeBase = getDateTimeBase,
+            getSkipBeforeStartDateCheck = skipBeforeStartDateCheck,
+            getDescription = getDescription,
+            getAmount = getAmount,
+            getBalance = getBalance,
+        ),
+        needReverse = True,
+    )
+
 
 if __name__ == '__main__':
     FILE = 1

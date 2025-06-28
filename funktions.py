@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
+import csv
 from functools import reduce
-from typing import Any, Callable, Union
+import sys
+from typing import Callable, Union
 from dataclasses import dataclass
 import datetime
 
@@ -64,12 +66,12 @@ def reduceLinkedRow(indexAndFunction: tuple, last: Union[LinkedRow,None]) -> Lin
         this=function,
     )
 
-def getLazyDictLinkedListWithHandler(fileReader: Callable, defaultHandler: Callable = lambda x: x) -> list[LinkedRow]:
+def getLazyDictLinkedListWithHandler(fileReader: Callable, defaultHandler: Callable = lambda x: x, needReverse: bool = False) -> list[LinkedRow]:
     listOfDictFunctions = list(map(lambda function: getLazyValue(function, defaultHandler), getDictOfLazyRowsWithHeader(fileReader)))
     return list(
         reduce(
             lambda acc, indexAndFunction: acc + [reduceLinkedRow(indexAndFunction, acc[-1] if len(acc) > 0 else None)],
-            enumerate(listOfDictFunctions),
+            reverseListOrNot(needReverse, list(enumerate(listOfDictFunctions))),
             []
         )
     )
@@ -79,21 +81,58 @@ def getDictOfLazyRowsWithHeader(fileReader: Callable) -> list[Callable]:
     columns = getColumnsIndexMap(lazyRows[0])
     return getDictOfLazyRowsFromLazyRowList(lazyRows[1:], columns)
 
+def writeUploadableTransactionsCSV(fileReader: Callable, mapFunction: Callable, defaultHandler: Callable = lambda x: x, needReverse: bool = False):
+    listofTransactions: list[StandardBankTransaction] = \
+        mapCsvRowsIgnoreNone(fileReader = fileReader, mapFunction = mapFunction, defaultHandler = defaultHandler, needReverse = needReverse)
 
-def mapCsvRowsIgnoreNone(fileReader: Callable, mapFunction: Callable, defaultHandler: Callable = lambda x: x):
+    rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
+    rowWriter.writerow(("Txn ID", "Date", "Name", "Amount", "Balance"))
+    for transaction in listofTransactions:
+        rowWriter.writerow((
+            transaction.createTransactionId(),
+            transaction.dateString,
+            transaction.description,
+            transaction.amount,
+            transaction.balance,
+        ))
+
+def reverseListOrNot(needReverse: bool, nominalList: list) -> list:
+    if needReverse:
+        reversedList: list[Callable] = list(reversed(nominalList))
+        return reversedList
+    return nominalList
+
+def mapCsvRowsIgnoreNone(fileReader: Callable, mapFunction: Callable, defaultHandler: Callable = lambda x: x, needReverse: bool = False):
+
     def ignoreNone(acc: list, value: LinkedRow):
         response = mapFunction(value)
         return acc if response is None else acc + [response]
+
+
     return list(
         reduce(
             ignoreNone,
-            getLazyDictLinkedListWithHandler(
-                fileReader=fileReader,
-                defaultHandler=defaultHandler,
-            ),
+            getLazyDictLinkedListWithHandler(fileReader=fileReader, defaultHandler=defaultHandler, needReverse = needReverse),
             [],
         )
     )
+
+def checkTransactionBalance(
+        last: Union[LinkedRow,None],
+        transaction: StandardBankTransaction
+):
+    if last is not None and last.this() and transaction is not None:
+        lastTransaction: StandardBankTransaction = last.this()
+        if lastTransaction.balance + transaction.amount != transaction.balance:
+            raise Exception(
+                    f"""
+                        Balance not matching ->
+                        lastTransaction.balance: {lastTransaction.balance}
+                        transaction.balance: {transaction.balance}
+                        transaction.amount: {transaction.amount}
+                        {lastTransaction.balance} != {transaction.balance}
+                    """
+            )
 
 
 def standardBankRowHandlerGeneration(
@@ -123,18 +162,8 @@ def standardBankRowHandlerGeneration(
             )
 
         transaction: StandardBankTransaction = value.this(mapToDataClass)
-        if last is not None and last.this() and transaction is not None:
-            lastTransaction: StandardBankTransaction = last.this()
-            if lastTransaction.balance + transaction.amount != transaction.balance:
-                raise Exception(
-                        f"""
-                            Balance not matching ->
-                            lastTransaction.balance: {lastTransaction.balance}
-                            transaction.balance: {transaction.balance}
-                            transaction.amount: {transaction.amount}
-                            {lastTransaction.balance} != {transaction.balance}
-                        """
-                )
+        if transaction.balance is not None:
+            checkTransactionBalance(last, transaction)
 
         return transaction
     return standardBankRowHandler
