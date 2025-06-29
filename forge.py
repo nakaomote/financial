@@ -53,6 +53,32 @@ def doRun(run: bankRun) -> bankRunResult:
         wasRun  = True,
     )
 
+def showCreated(runs: list[bankRunResult]):
+    created = list(
+        filter( lambda result: result.wasRun, runs)
+    )
+    if len(created) == 0:
+        return
+    print("\ncreated overall:\n\n" + "\n".join(
+            map(lambda result: result.bankRun.filename, created)
+        )
+    )
+
+def showFinalBalances(runs: list[bankRunResult]):
+    finalBalances = list(
+        filter(lambda result: result.bankRun.finalBalance() is not None, runs)
+    )
+    if len(finalBalances) == 0:
+        return
+    print("\naccount balances:\n")
+    with open(os.path.join(uploadDir, "balances.csv"), "w") as rb:
+        stdoutRowWriter = csv.writer(rb, delimiter=',', quotechar='"')
+        for run in finalBalances:
+            basename = os.path.basename(run.bankRun.filename).replace(".csv","")
+            balanceAmount = run.bankRun.finalBalance()
+            print("%s: %s" % (basename, balanceAmount))
+            stdoutRowWriter.writerow((basename, balanceAmount,))
+
 if __name__ == '__main__':
     uploadDir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'uploads')
     def flattenRuns(runs: list[Callable[[str], list[bankRun]]]) -> List[bankRunResult]:
@@ -82,22 +108,5 @@ if __name__ == '__main__':
                 ])
         ))
 
-    created = list(
-        filter( lambda result: result.wasRun, runs)
-    )
-    if len(created) > 0:
-        print("\ncreated overall:\n\n" + "\n".join(
-                map(lambda result: result.bankRun.filename, created)
-            )
-        )
-
-    finalBalances = list(
-        filter(lambda result: result.bankRun.finalBalance() is not None, runs)
-    )
-    with open(os.path.join(uploadDir, "balances.csv"), "w") as rb:
-        stdoutRowWriter = csv.writer(rb, delimiter=',', quotechar='"')
-        for run in finalBalances:
-            basename = os.path.basename(run.bankRun.filename).replace(".csv","")
-            balanceAmount = run.bankRun.finalBalance()
-            print("%s: %s" % (basename, balanceAmount))
-            stdoutRowWriter.writerow((basename, balanceAmount,))
+    showCreated(runs)
+    showFinalBalances(runs)

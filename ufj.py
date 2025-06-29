@@ -12,17 +12,31 @@ import os
 import glob
 from typing import Union
 
+from funktions import readCsvFileFunction, setLastBalance
 from ufj_download import ufjDownload
 
 def ufjAll(dirname: str):
     from forge import bankRun
 
     def bankRunGenerator(outputFile: str) -> list[bankRun]:
+        finalBalance = None
+        fullPathOutputFile = os.path.join(dirname, outputFile)
+
         def download():
             ufjDownload()
 
+        def setFinalBalance(value: int) -> None:
+            nonlocal finalBalance
+            finalBalance = value
+
         def getFinalBalance() -> Union[None, int]:
-            return None
+            nonlocal finalBalance
+            if finalBalance is None:
+                setLastBalance(
+                    fileReader = readCsvFileFunction(fullPathOutputFile, "utf-8"),
+                    setFinalBalance = setFinalBalance,
+                )
+            return finalBalance
 
         def parse():
             downloadFile = glob.glob(
@@ -35,7 +49,7 @@ def ufjAll(dirname: str):
             os.remove(downloadFile)
 
         return [bankRun(
-            filename=os.path.join(dirname, outputFile),
+            filename=fullPathOutputFile,
             download=download,
             parse=parse,
             finalBalance=getFinalBalance,
@@ -118,6 +132,7 @@ class Transactions():
 
     def print(self):
         rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
+        rowWriter.writerow(("Txn ID", "Date", "Name", "Amount", "Balance"))
         for transaction in self.__transactions:
             rowWriter.writerow([
                 transaction.getHash(),
