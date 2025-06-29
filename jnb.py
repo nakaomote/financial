@@ -10,9 +10,9 @@ import sys
 import datetime
 import os
 import glob
-from typing import Union
+from typing import Callable, Union
 from descriptions import Descriptions
-from funktions import LinkedRow, mapCsvRowsIgnoreNone
+from funktions import LinkedRow, setLastBalance, mapCsvRowsIgnoreNone, readCsvFileFunction
 from jnb_download import jnbDownload
 from dataclasses import dataclass
 
@@ -23,8 +23,10 @@ def jnbAll(dirname: str):
         year = None
         month = None
         day = None
+        finalBalance = None
+        fullPathOutputFile = os.path.join(dirname, outputFile)
 
-        def download():
+        def configureAndDownload():
             nonlocal year
             nonlocal month
             nonlocal day
@@ -32,6 +34,19 @@ def jnbAll(dirname: str):
             month = input("Start month (jnb): ")
             day = input("Start day (jnb): ")
             jnbDownload()
+
+        def setFinalBalance(value: int) -> None:
+            nonlocal finalBalance
+            finalBalance = value
+
+        def getFinalBalance() -> Union[None, int]:
+            nonlocal finalBalance
+            if finalBalance is None:
+                 setLastBalance(
+                     fileReader = readCsvFileFunction(fullPathOutputFile, "utf-8"),
+                     setFinalBalance = setFinalBalance,
+                 )
+            return finalBalance
 
         def parse():
             nonlocal year
@@ -48,9 +63,10 @@ def jnbAll(dirname: str):
                 os.remove(file)
 
         return [bankRun(
-            filename=os.path.join(dirname, outputFile),
-            download=download,
+            filename=fullPathOutputFile,
+            download=configureAndDownload,
             parse=parse,
+            finalBalance=getFinalBalance,
         )]
 
     return bankRunGenerator(os.path.join(dirname,"jnb.csv"))

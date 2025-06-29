@@ -10,6 +10,7 @@ import codecs
 import hashlib
 import os
 import glob
+from typing import Union
 
 from ufj_download import ufjDownload
 
@@ -19,6 +20,9 @@ def ufjAll(dirname: str):
     def bankRunGenerator(outputFile: str) -> list[bankRun]:
         def download():
             ufjDownload()
+
+        def getFinalBalance() -> Union[None, int]:
+            return None
 
         def parse():
             downloadFile = glob.glob(
@@ -34,6 +38,7 @@ def ufjAll(dirname: str):
             filename=os.path.join(dirname, outputFile),
             download=download,
             parse=parse,
+            finalBalance=getFinalBalance,
         )]
 
     return bankRunGenerator(os.path.join(dirname,"ufj.csv"))

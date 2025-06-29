@@ -10,6 +10,7 @@ import codecs
 import hashlib
 import os
 import glob
+from typing import Union
 
 from seven_download import sevenDownload
 
@@ -19,6 +20,9 @@ def sevenAll(dirname: str):
     def bankRunGenerator(outputFile: str) -> list[bankRun]:
         def download():
             sevenDownload()
+
+        def getFinalBalance() -> Union[None, int]:
+            return None
 
         def parse():
             files = glob.glob(
@@ -35,6 +39,7 @@ def sevenAll(dirname: str):
             filename=os.path.join(dirname, outputFile),
             download=download,
             parse=parse,
+            finalBalance=getFinalBalance,
         )]
 
     return bankRunGenerator(os.path.join(dirname,"seven.csv"))

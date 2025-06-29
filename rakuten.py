@@ -10,6 +10,7 @@ import sys
 import datetime
 import hashlib
 import os
+from typing import Union
 from descriptions import Descriptions
 from rakuten_download import rakutenDownload
 
@@ -19,6 +20,9 @@ def rakutenAll(dirname: str):
     def bankRunGenerator(outputFile: str) -> list[bankRun]:
         def download():
             rakutenDownload()
+
+        def getFinalBalance() -> Union[None, int]:
+            return None
 
         def parse():
             files = [
@@ -33,6 +37,7 @@ def rakutenAll(dirname: str):
             filename=os.path.join(dirname, outputFile),
             download=download,
             parse=parse,
+            finalBalance=getFinalBalance,
         )]
 
     return bankRunGenerator(os.path.join(dirname,"rakuten.csv"))

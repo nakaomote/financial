@@ -7,6 +7,7 @@ import os
 import glob
 from datetime import datetime
 from dataclasses import dataclass
+from typing import Union
 
 def oliveAll(dirname: str):
     from forge import bankRun
@@ -15,6 +16,9 @@ def oliveAll(dirname: str):
         def download():
             while input("Download olive file and type 'yes': ") != "yes":
                 pass
+
+        def getFinalBalance() -> Union[None, int]:
+            return None
 
         def parse():
             file = glob.glob(
@@ -31,6 +35,7 @@ def oliveAll(dirname: str):
             filename=os.path.join(dirname, outputFile),
             download=download,
             parse=parse,
+            finalBalance=getFinalBalance,
         )]
 
     return bankRunGenerator(os.path.join(dirname,"olive.csv"))

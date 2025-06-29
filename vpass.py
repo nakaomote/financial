@@ -9,6 +9,7 @@ import sys
 import codecs
 import os
 import glob
+from typing import Union
 from descriptions import Descriptions
 
 def vpassAll(dirname: str):
@@ -22,6 +23,9 @@ def vpassAll(dirname: str):
             balance = input("Specify balance for vpass: ")
             while input("Download vpass file and type 'yes': ") != "yes":
                 pass
+
+        def getFinalBalance() -> Union[None, int]:
+            return None
 
         def parse():
             file = glob.glob(
@@ -38,6 +42,7 @@ def vpassAll(dirname: str):
             filename=os.path.join(dirname, outputFile),
             download=download,
             parse=parse,
+            finalBalance=getFinalBalance,
         )]
 
     return bankRunGenerator(os.path.join(dirname,"vpass.csv"))

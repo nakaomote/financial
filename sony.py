@@ -9,6 +9,7 @@ import glob
 import sys
 import codecs
 from datetime import datetime
+from typing import Union
 from descriptions import Descriptions
 import configparser
 import os
@@ -25,6 +26,9 @@ def sonyAll(dirname: str):
             while input(f"Download sony csv file for '{sonySection}' and type 'yes': ") != "yes":
                 pass
 
+        def getFinalBalance() -> Union[None, int]:
+            return None
+
         def parse():
             file = glob.glob(
                 os.path.join(
@@ -40,6 +44,7 @@ def sonyAll(dirname: str):
             filename=os.path.join(dirname, finalFile),
             download=download,
             parse=parse,
+            finalBalance=getFinalBalance,
         )
 
     config = configparser.ConfigParser()

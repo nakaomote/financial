@@ -4,14 +4,16 @@
 Run everything.
 """
 
+import csv
+import sys
 from neobank import neobankAll
 from sony import sonyAll
 import os
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Union
 import io
 from contextlib import redirect_stdout
-from typing import Union, List
+from typing import List
 
 from ufj import ufjAll
 from rakuten import rakutenAll
@@ -26,10 +28,19 @@ class bankRun:
     filename: str
     download: Callable
     parse: Callable
+    finalBalance: Callable[[], Union[None, int]]
 
-def doRun(run: bankRun) -> Union[str, None]:
+@dataclass
+class bankRunResult:
+    bankRun: bankRun
+    wasRun: bool
+
+def doRun(run: bankRun) -> bankRunResult:
     if os.path.isfile(run.filename):
-        return None
+        return bankRunResult(
+            bankRun = run,
+            wasRun  = False,
+        )
     run.download()
     f = io.StringIO()
     with redirect_stdout(f):
@@ -37,11 +48,14 @@ def doRun(run: bankRun) -> Union[str, None]:
     with open(run.filename, "w") as rb:
             rb.write(f.getvalue())
     print(f"Created {run.filename}")
-    return run.filename
+    return bankRunResult(
+        bankRun = run,
+        wasRun  = True,
+    )
 
 if __name__ == '__main__':
     uploadDir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'uploads')
-    def flattenRuns(runs: list[Callable[[str], list[bankRun]]]) -> List[Union[str, None]]:
+    def flattenRuns(runs: list[Callable[[str], list[bankRun]]]) -> List[bankRunResult]:
         if len(runs) == 0:
             return []
         return list(
@@ -68,4 +82,22 @@ if __name__ == '__main__':
                 ])
         ))
 
-    print("\n".join(runs))
+    created = list(
+        filter( lambda result: result.wasRun, runs)
+    )
+    if len(created) > 0:
+        print("\ncreated overall:\n\n" + "\n".join(
+                map(lambda result: result.bankRun.filename, created)
+            )
+        )
+
+    finalBalances = list(
+        filter(lambda result: result.bankRun.finalBalance() is not None, runs)
+    )
+    with open(os.path.join(uploadDir, "balances.csv"), "w") as rb:
+        stdoutRowWriter = csv.writer(rb, delimiter=',', quotechar='"')
+        for run in finalBalances:
+            basename = os.path.basename(run.bankRun.filename).replace(".csv","")
+            balanceAmount = run.bankRun.finalBalance()
+            print("%s: %s" % (basename, balanceAmount))
+            stdoutRowWriter.writerow((basename, balanceAmount,))

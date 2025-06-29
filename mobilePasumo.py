@@ -30,6 +30,9 @@ def mobilePasumoAll(dirname: str):
             nonlocal specifyDay
             specifyDay = input("mobilePasumo: End date (blank for current day) (ie; 01): ")
 
+        def getFinalBalance() -> Union[None, int]:
+            return None
+
         def parse():
             nonlocal specifyDay
             mobilePasumoBank(specifyDay)
@@ -38,6 +41,7 @@ def mobilePasumoAll(dirname: str):
             filename=os.path.join(dirname, outputFile),
             download=download,
             parse=parse,
+            finalBalance=getFinalBalance,
         )]
 
     return bankRunGenerator(os.path.join(dirname,"mobilePasumo.csv"))

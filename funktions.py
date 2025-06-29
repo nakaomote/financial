@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import codecs
 import csv
 from functools import reduce
 import sys
@@ -75,6 +76,16 @@ def getLazyDictLinkedListWithHandler(fileReader: Callable, defaultHandler: Calla
             []
         )
     )
+
+def readCsvFileFunction(filename: str, codec: str = "shift_jis") -> Callable:
+    return lambda: csv.reader(codecs.open(filename, "r", codec))
+
+def setLastBalance(fileReader: Callable, setFinalBalance: Callable, defaultHandler: Callable = lambda x: x, needReverse: bool = False):
+    setFinalBalance(int(getLazyDictLinkedListWithHandler(
+        fileReader=fileReader,
+        defaultHandler=defaultHandler,
+        needReverse=needReverse,
+    )[-1].this()["Balance"]))
 
 def getDictOfLazyRowsWithHeader(fileReader: Callable) -> list[Callable]:
     lazyRows = getLazyRows(fileReader)

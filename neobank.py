@@ -20,6 +20,9 @@ def neobankAll(dirname: str):
             while input("Download neobank csv file and type 'yes': ") != "yes":
                 pass
 
+        def getFinalBalance() -> Union[None, int]:
+            return None
+
         def parse():
             file = glob.glob(
                 os.path.join(
@@ -36,6 +39,7 @@ def neobankAll(dirname: str):
             filename=os.path.join(dirname, outputFile),
             download=download,
             parse=parse,
+            finalBalance=getFinalBalance,
         )]
 
     return bankRunGenerator(os.path.join(dirname,"neobank.csv"))
