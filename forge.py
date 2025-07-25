@@ -98,13 +98,13 @@ if __name__ == '__main__':
                 flattenRuns([
                     vpassAll,
                     mobilePasumoAll,
-                    jnbAll,
                     sevenAll,
                     rakutenAll,
                     ufjAll,
+                    jnbAll,
                     sonyAll,
-                    oliveAll,
                     neobankAll,
+                    oliveAll,
                 ])
         ))
 

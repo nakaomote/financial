@@ -80,6 +80,19 @@ def getLazyDictLinkedListWithHandler(fileReader: Callable, defaultHandler: Calla
 def readCsvFileFunction(filename: str, codec: str = "shift_jis") -> Callable:
     return lambda: csv.reader(codecs.open(filename, "r", codec))
 
+def setLastBalanceFromEntireCSVFile(fileReader: Callable, setFinalBalance: Callable, accumulator: Callable, defaultHandler: Callable = lambda x: x, needReverse: bool = False):
+    setFinalBalance(
+        reduce(
+            accumulator,
+            getLazyDictLinkedListWithHandler(
+                fileReader=fileReader,
+                defaultHandler=defaultHandler,
+                needReverse=needReverse,
+            ),
+            0
+        )
+    )
+
 def setLastBalance(fileReader: Callable, setFinalBalance: Callable, defaultHandler: Callable = lambda x: x, needReverse: bool = False):
     setFinalBalance(int(getLazyDictLinkedListWithHandler(
         fileReader=fileReader,
@@ -136,6 +149,8 @@ def checkTransactionBalance(
         return
     if last is not None and last.this():
         lastTransaction: StandardBankTransaction = last.this()
+        if lastTransaction.balance is None:
+            return
         if lastTransaction.balance + transaction.amount != transaction.balance:
             raise Exception(
                     f"""

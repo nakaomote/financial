@@ -57,7 +57,7 @@ def jnbDownload():
         except:
             break
 
-    driver.find_element(By.CSS_SELECTOR, "img[src='/commontpl/images/category/welcome_ic003.png']").click()
+    driver.find_element(By.CSS_SELECTOR, "img[src='/commontpl/images/category/icon_transaction_details.svg']").click()
     WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.LINK_TEXT, "CSV"))).click()
 
     time.sleep(10)

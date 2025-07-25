@@ -11,12 +11,15 @@ import os
 import glob
 from typing import Union
 from descriptions import Descriptions
+from funktions import LinkedRow, readCsvFileFunction, setLastBalanceFromEntireCSVFile
 
 def vpassAll(dirname: str):
     from forge import bankRun
 
     def bankRunGenerator(outputFile: str) -> list[bankRun]:
         balance = None
+        finalBalance = None
+        fullPathOutputFile = os.path.join(dirname, outputFile)
 
         def download():
             nonlocal balance
@@ -24,8 +27,22 @@ def vpassAll(dirname: str):
             while input("Download vpass file and type 'yes': ") != "yes":
                 pass
 
+        def setFinalBalance(value: int) -> None:
+            nonlocal finalBalance
+            finalBalance = value
+
+        def accumulator(acc: int, row: LinkedRow):
+            return acc + int(row.this()["Amount"])
+
         def getFinalBalance() -> Union[None, int]:
-            return None
+            nonlocal finalBalance
+            if finalBalance is None:
+                setLastBalanceFromEntireCSVFile(
+                    fileReader = readCsvFileFunction(fullPathOutputFile, "utf-8"),
+                    setFinalBalance = setFinalBalance,
+                    accumulator=accumulator,
+                )
+            return finalBalance
 
         def parse():
             file = glob.glob(
@@ -88,6 +105,7 @@ def vpassBank(meisai: str, overallBalance: str, amount: str):
 
         def print(self):
             rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
+            rowWriter.writerow(("Date", "Name", "Amount"))
             for transaction in self.__transactions:
                 rowWriter.writerow([
                     transaction.getDate(),
