@@ -18,7 +18,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.service import Service
 
-def sevenDownload():
+def sevenDownload(bothMonths: bool):
     config = configparser.ConfigParser()
     config.read(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.ini'))
     settings = config['seven']
@@ -60,10 +60,10 @@ def sevenDownload():
 
     driver.switch_to.window(driver.window_handles[4])
 
-#    if "ご利用代金明細はございません" not in driver.page_source:
-#        driver.find_element(By.ID, "inquiry").click()
-#        WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "img[src='/apl/myj/common/images/btn-csv-download.jpg']"))).click()
-#
+    if bothMonths:
+        driver.find_element(By.ID, "inquiry").click()
+        WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "img[src='/apl/myj/common/images/btn-csv-download.jpg']"))).click()
+
     fromDate=(date.today().replace(day=1) - timedelta(days=1)).replace(day=16).strftime("%-Y年%-m月%-d日")
     tooDate=date.today().replace(day=15).strftime("%-Y年%-m月%-d日")
 

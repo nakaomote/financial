@@ -19,7 +19,9 @@ def sevenAll(dirname: str):
 
     def bankRunGenerator(outputFile: str) -> list[bankRun]:
         def download():
-            sevenDownload()
+            while result := input("Download for both 15 day periods?: ") not in ("yes", "no"):
+                pass
+            sevenDownload(result == "yes")
 
         def getFinalBalance() -> Union[None, int]:
             return None
