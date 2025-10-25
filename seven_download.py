@@ -74,4 +74,4 @@ def sevenDownload(bothMonths: bool):
     time.sleep(10)
 
 if __name__ == '__main__':
-    sevenDownload()
+    sevenDownload(True)
