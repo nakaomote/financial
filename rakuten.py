@@ -47,7 +47,7 @@ def rakutenBank(meisai: list):
     MISSINGDEBIT = 0
     FILES = dict()
     for file in meisai:
-        with codecs.open(file, "r", "shift_jis") as fd:
+        with open(file, "r", encoding="shift_jis") as fd:
             line = fd.readline().rstrip("\n").rstrip("\r")
             if line == "取引日,入出金(円),取引後残高(円),入出金内容":
                 FILES["kouzaFile"] = file
