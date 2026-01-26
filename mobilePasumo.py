@@ -83,7 +83,7 @@ def mobilePasumoBank(specifyDay: Union[None, str]):
                 self[Row.BALANCE]
             )
 
-    currentYear = "2025"
+    currentYear = "2026"
     if datetime.now().strftime("%Y") != currentYear:
         print("Time to check on the year problem, it's not %s" % currentYear)
         sys.exit(-1)

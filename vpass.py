@@ -52,7 +52,7 @@ def vpassAll(dirname: str):
                     "202???.csv"
                 )
             )[0]
-            vpassBank(file, str(balance), "6")
+            vpassBank(file, str(balance), "5")
             os.remove(file)
 
         return [bankRun(

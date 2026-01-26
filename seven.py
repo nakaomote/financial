@@ -21,7 +21,6 @@ def sevenAll(dirname: str):
         def download():
             while (result := input("Download for both 15 day periods?: ")) not in ("yes", "no"):
                 pass
-            print(result)
             sevenDownload(result == "yes")
 
         def getFinalBalance() -> Union[None, int]:
