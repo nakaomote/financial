@@ -105,12 +105,15 @@ def getDictOfLazyRowsWithHeader(fileReader: Callable) -> list[Callable]:
     columns = getColumnsIndexMap(lazyRows[0])
     return getDictOfLazyRowsFromLazyRowList(lazyRows[1:], columns)
 
+def getStandardCsvHeaders() -> tuple:
+    return ("Txn ID", "Date", "Name", "Amount", "Balance")
+
 def writeUploadableTransactionsCSV(fileReader: Callable, mapFunction: Callable, defaultHandler: Callable = lambda x: x, needReverse: bool = False):
     listofTransactions: list[StandardBankTransaction] = \
         mapCsvRowsIgnoreNone(fileReader = fileReader, mapFunction = mapFunction, defaultHandler = defaultHandler, needReverse = needReverse)
 
     rowWriter = csv.writer(sys.stdout, delimiter=',', quotechar='"')
-    rowWriter.writerow(("Txn ID", "Date", "Name", "Amount", "Balance"))
+    rowWriter.writerow(getStandardCsvHeaders())
     for transaction in listofTransactions:
         rowWriter.writerow((
             transaction.createTransactionId(),

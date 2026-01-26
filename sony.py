@@ -13,8 +13,7 @@ from typing import Union
 from descriptions import Descriptions
 import configparser
 import os
-from funktions import standardBankRowHandlerGeneration, writeUploadableTransactionsCSV
-from sony_download import sonyDownload
+from funktions import LinkedRow, StandardBankTransaction, getStandardCsvHeaders, mapCsvRowsIgnoreNone, readCsvFileFunction, standardBankRowHandlerGeneration, writeUploadableTransactionsCSV
 
 def sonyAll(dirname: str):
     from forge import bankRun
@@ -40,11 +39,36 @@ def sonyAll(dirname: str):
             sonyBank(file, "2025-05-23")
             os.remove(file)
 
+        def createSplits() -> None:
+            def handleFilter(value: LinkedRow):
+                this = value.this()
+                name = this["Name"]
+                if name in ("モバイルＰＡＳＭＯチャージ", "ＰＡＳＭＯ"):
+                    return this
+                return None
+
+            listofTransactions = \
+                mapCsvRowsIgnoreNone(
+                    readCsvFileFunction(os.path.join(dirname, finalFile), "utf-8"),
+                    handleFilter
+                )
+
+            if len(listofTransactions) == 0:
+                return
+
+            with open(os.path.join(dirname, finalFile.replace(".csv","-pasumo.csv")), "w") as rb:
+                rowWriter = csv.writer(rb, delimiter=',', quotechar='"')
+                headers = getStandardCsvHeaders()
+                rowWriter.writerow(headers)
+                for transaction in listofTransactions:
+                    rowWriter.writerow(tuple(map(lambda x: transaction[x], headers)))
+
         return bankRun(
             filename=os.path.join(dirname, finalFile),
             download=download,
             parse=parse,
             finalBalance=getFinalBalance,
+            createSplits=createSplits,
         )
 
     config = configparser.ConfigParser()

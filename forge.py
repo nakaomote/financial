@@ -9,7 +9,7 @@ from neobank import neobankAll
 from sony import sonyAll
 import os
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Union
 import io
 from contextlib import redirect_stdout
 from typing import List
@@ -28,6 +28,7 @@ class bankRun:
     download: Callable
     parse: Callable
     finalBalance: Callable[[], dict[str,int]]
+    createSplits: Union[None, Callable[[], None]] = None
 
 @dataclass
 class bankRunResult:
@@ -51,6 +52,15 @@ def doRun(run: bankRun) -> bankRunResult:
         bankRun = run,
         wasRun  = True,
     )
+
+def createSplits(runs: list[bankRunResult]):
+
+    def tryRun(result: bankRunResult):
+        createSplits = result.bankRun.createSplits
+        if createSplits is not None:
+            return createSplits()
+
+    tuple(map(tryRun, runs))
 
 def showCreated(runs: list[bankRunResult]):
     created = list(
@@ -103,4 +113,5 @@ if __name__ == '__main__':
         ))
 
     showCreated(runs)
+    createSplits(runs)
     showFinalBalances(runs)
