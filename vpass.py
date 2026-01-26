@@ -18,7 +18,7 @@ def vpassAll(dirname: str):
 
     def bankRunGenerator(outputFile: str) -> list[bankRun]:
         balance = None
-        finalBalance = None
+        finalBalance = {}
         fullPathOutputFile = os.path.join(dirname, outputFile)
 
         def download():
@@ -29,18 +29,18 @@ def vpassAll(dirname: str):
 
         def setFinalBalance(value: int) -> None:
             nonlocal finalBalance
-            finalBalance = value
+            finalBalance = { "vpass": value }
 
         def accumulator(acc: int, row: LinkedRow):
             return acc + int(row.this()["Amount"])
 
-        def getFinalBalance() -> Union[None, int]:
+        def getFinalBalance() -> dict[str,int]:
             nonlocal finalBalance
-            if finalBalance is None:
+            if len(finalBalance) == 0:
                 setLastBalanceFromEntireCSVFile(
                     fileReader = readCsvFileFunction(fullPathOutputFile, "utf-8"),
                     setFinalBalance = setFinalBalance,
-                    accumulator=accumulator,
+                    accumulator = accumulator,
                 )
             return finalBalance
 

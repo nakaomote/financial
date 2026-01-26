@@ -30,8 +30,8 @@ def mobilePasumoAll(dirname: str):
             nonlocal specifyDay
             specifyDay = input("mobilePasumo: End date (blank for current day) (ie; 01): ")
 
-        def getFinalBalance() -> Union[None, int]:
-            return None
+        def getFinalBalance() -> dict[str,int]:
+            return {}
 
         def parse():
             nonlocal specifyDay

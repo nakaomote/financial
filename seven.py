@@ -23,8 +23,8 @@ def sevenAll(dirname: str):
                 pass
             sevenDownload(result == "yes")
 
-        def getFinalBalance() -> Union[None, int]:
-            return None
+        def getFinalBalance() -> dict[str,int]:
+            return {}
 
         def parse():
             files = glob.glob(

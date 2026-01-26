@@ -20,8 +20,8 @@ def neobankAll(dirname: str):
             while input("Download neobank csv file and type 'yes': ") != "yes":
                 pass
 
-        def getFinalBalance() -> Union[None, int]:
-            return None
+        def getFinalBalance() -> dict[str,int]:
+            return {}
 
         def parse():
             file = glob.glob(

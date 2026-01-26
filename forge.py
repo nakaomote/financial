@@ -5,12 +5,11 @@ Run everything.
 """
 
 import csv
-import sys
 from neobank import neobankAll
 from sony import sonyAll
 import os
 from dataclasses import dataclass
-from typing import Callable, Union
+from typing import Callable
 import io
 from contextlib import redirect_stdout
 from typing import List
@@ -28,7 +27,7 @@ class bankRun:
     filename: str
     download: Callable
     parse: Callable
-    finalBalance: Callable[[], Union[None, int]]
+    finalBalance: Callable[[], dict[str,int]]
 
 @dataclass
 class bankRunResult:
@@ -65,19 +64,14 @@ def showCreated(runs: list[bankRunResult]):
     )
 
 def showFinalBalances(runs: list[bankRunResult]):
-    finalBalances = list(
-        filter(lambda result: result.bankRun.finalBalance() is not None, runs)
-    )
-    if len(finalBalances) == 0:
-        return
     print("\naccount balances:\n")
     with open(os.path.join(uploadDir, "balances.csv"), "w") as rb:
         stdoutRowWriter = csv.writer(rb, delimiter=',', quotechar='"')
-        for run in finalBalances:
-            basename = os.path.basename(run.bankRun.filename).replace(".csv","")
-            balanceAmount = run.bankRun.finalBalance()
-            print("%s: %s" % (basename, balanceAmount))
-            stdoutRowWriter.writerow((basename, balanceAmount,))
+        for run in runs:
+            balanceAmounts = run.bankRun.finalBalance()
+            for name, balance in balanceAmounts.items():
+                print("%s: %s" % (name, balance))
+                stdoutRowWriter.writerow((name, balance,))
 
 if __name__ == '__main__':
     uploadDir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'uploads')

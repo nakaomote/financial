@@ -19,7 +19,7 @@ def ufjAll(dirname: str):
     from forge import bankRun
 
     def bankRunGenerator(outputFile: str) -> list[bankRun]:
-        finalBalance = None
+        finalBalance = {}
         fullPathOutputFile = os.path.join(dirname, outputFile)
 
         def download():
@@ -27,11 +27,11 @@ def ufjAll(dirname: str):
 
         def setFinalBalance(value: int) -> None:
             nonlocal finalBalance
-            finalBalance = value
+            finalBalance = { "ufj": value }
 
-        def getFinalBalance() -> Union[None, int]:
+        def getFinalBalance() -> dict[str,int]:
             nonlocal finalBalance
-            if finalBalance is None:
+            if len(finalBalance) == 0:
                 setLastBalance(
                     fileReader = readCsvFileFunction(fullPathOutputFile, "utf-8"),
                     setFinalBalance = setFinalBalance,

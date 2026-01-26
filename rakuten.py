@@ -10,7 +10,6 @@ import sys
 import datetime
 import hashlib
 import os
-from typing import Union
 from descriptions import Descriptions
 from rakuten_download import rakutenDownload
 
@@ -21,8 +20,8 @@ def rakutenAll(dirname: str):
         def download():
             rakutenDownload()
 
-        def getFinalBalance() -> Union[None, int]:
-            return None
+        def getFinalBalance() -> dict[str,int]:
+            return {}
 
         def parse():
             files = [

@@ -26,8 +26,8 @@ def sonyAll(dirname: str):
             while input(f"Download sony csv file for '{sonySection}' and type 'yes': ") != "yes":
                 pass
 
-        def getFinalBalance() -> Union[None, int]:
-            return None
+        def getFinalBalance() -> dict[str,int]:
+            return {}
 
         def parse():
             file = glob.glob(

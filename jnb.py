@@ -10,7 +10,7 @@ import sys
 import datetime
 import os
 import glob
-from typing import Callable, Union
+from typing import Union
 from descriptions import Descriptions
 from funktions import LinkedRow, setLastBalance, mapCsvRowsIgnoreNone, readCsvFileFunction
 from jnb_download import jnbDownload
@@ -23,7 +23,7 @@ def jnbAll(dirname: str):
         year = None
         month = None
         day = None
-        finalBalance = None
+        finalBalance = {}
         fullPathOutputFile = os.path.join(dirname, outputFile)
 
         def configureAndDownload():
@@ -37,11 +37,11 @@ def jnbAll(dirname: str):
 
         def setFinalBalance(value: int) -> None:
             nonlocal finalBalance
-            finalBalance = value
+            finalBalance = { "jnb": value }
 
-        def getFinalBalance() -> Union[None, int]:
+        def getFinalBalance() -> dict[str,int]:
             nonlocal finalBalance
-            if finalBalance is None:
+            if len(finalBalance) == 0:
                  setLastBalance(
                      fileReader = readCsvFileFunction(fullPathOutputFile, "utf-8"),
                      setFinalBalance = setFinalBalance,
